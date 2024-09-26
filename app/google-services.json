@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "849282800755",
+    "project_id": "unihub-98c4e",
+    "storage_bucket": "unihub-98c4e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:849282800755:android:c52b0582fa79b4e2ea5e06",
+        "android_client_info": {
+          "package_name": "com.tongteacrew.unihub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBRbsM-LKHkDzWBGAgkJ5GcW808YLY_Cs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

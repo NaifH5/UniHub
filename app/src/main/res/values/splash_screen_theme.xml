@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+
+        <item name="windowSplashScreenBackground">@color/darkShade4</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/unihub_logo_animated</item>
+        <item name="windowSplashScreenAnimationDuration">4000</item>
+        <item name="postSplashScreenTheme">@style/UniHubTheme</item>
+
+    </style>
+</resources>
