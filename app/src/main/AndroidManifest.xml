@@ -15,6 +15,22 @@
         <!-- Activities -->
 
         <activity
+            android:name=".DepartmentInformationActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".EditProfileActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
             android:name=".AddProfilePictureActivity"
             android:exported="false"
             android:theme="@style/UniHubTheme" />

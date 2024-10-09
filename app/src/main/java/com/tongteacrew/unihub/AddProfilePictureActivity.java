@@ -39,7 +39,7 @@ public class AddProfilePictureActivity extends AppCompatActivity {
         accountType = (String) getIntent().getSerializableExtra("account_type");
 
         bgImage = findViewById(R.id.bg_image);
-        profilePicture = findViewById(R.id.profile_picture);
+        profilePicture = findViewById(R.id.department_image);
         selectImage = findViewById(R.id.btn_select);
 
         if(Objects.equals(accountType, "student")) {

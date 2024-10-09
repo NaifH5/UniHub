@@ -41,7 +41,7 @@ public class SelectAccountActivity extends AppCompatActivity {
         btn_student.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SelectAccountActivity.this, RegisterAuthInfoActivity.class);
+                Intent intent = new Intent(SelectAccountActivity.this, ProfileActivity.class);
                 intent.putExtra("account_type", "student");
                 SelectAccountActivity.this.startActivity(intent);
             }
@@ -51,7 +51,7 @@ public class SelectAccountActivity extends AppCompatActivity {
         btn_faculty_member.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SelectAccountActivity.this, RegisterAuthInfoActivity.class);
+                Intent intent = new Intent(SelectAccountActivity.this, ProfileActivity.class);
                 intent.putExtra("account_type", "faculty_member");
                 SelectAccountActivity.this.startActivity(intent);
             }

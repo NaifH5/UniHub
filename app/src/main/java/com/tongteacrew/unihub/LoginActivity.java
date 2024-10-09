@@ -17,7 +17,7 @@ public class LoginActivity extends AppCompatActivity {
 
     ImageView btnPasswordVisibilityInLogin;
     EditText passwordInLogin;
-    Button btnRegisterInLogin;
+    Button btnRegisterInLogin, btnLoginInLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
 
         btnPasswordVisibilityInLogin = findViewById(R.id.btn_password_visibility_in_login);
         passwordInLogin = findViewById(R.id.password_in_login);
+        btnLoginInLogin = findViewById(R.id.btn_add_to_my_clubs);
         btnRegisterInLogin = findViewById(R.id.btn_register_in_login);
 
         btnPasswordVisibilityInLogin.setOnClickListener(new View.OnClickListener() {
@@ -51,6 +52,14 @@ public class LoginActivity extends AppCompatActivity {
 
                 // To move cursor to the end of the text
                 passwordInLogin.setSelection(passwordInLogin.getText().length());
+            }
+        });
+
+        btnLoginInLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                LoginActivity.this.startActivity(intent);
             }
         });
 
