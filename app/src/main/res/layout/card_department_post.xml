@@ -45,7 +45,7 @@
 
             <TextView
                 android:id="@+id/poster_name"
-                android:layout_width="wrap_content"
+                android:layout_width="170dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_toEndOf="@+id/relativeLayout3"
@@ -79,11 +79,20 @@
                 android:id="@+id/btn_options"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:layout_alignParentEnd="true"
+                android:layout_toStartOf="@+id/linearLayout4"
                 android:background="#00000000"
                 android:scaleType="fitXY"
                 android:src="@drawable/icon_options"
                 app:tint="@color/white" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal" >
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/post_time"
@@ -116,7 +125,7 @@
         <GridView
             android:id="@+id/media_gridview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="100dp"
             android:layout_below="@+id/post"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
@@ -131,15 +140,25 @@
             tools:listitem="@layout/card_media" />
 
         <LinearLayout
-            android:id="@+id/linear_layout_comment"
-            android:layout_width="48dp"
+            android:id="@+id/linear_layout"
+            android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_below="@+id/media_gridview"
-            android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
-            android:layout_marginStart="5dp"
+            android:orientation="horizontal" >
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linear_layout_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_toEndOf="@+id/linear_layout"
+            android:layout_below="@+id/media_gridview"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
             android:background="@drawable/shape_circle"
-            android:backgroundTint="@color/white" >
+            android:backgroundTint="@color/white">
 
             <ImageButton
                 android:id="@+id/btn_comment"
@@ -152,43 +171,34 @@
                 android:src="@drawable/icon_comment"
                 app:tint="@color/darkShade2" />
 
+            <TextView
+                android:id="@+id/comment_count"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/darkShade4"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
         </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/not_approved"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="48dp"
             android:layout_below="@+id/media_gridview"
+            android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
-            android:layout_toStartOf="@+id/linear_layout_comment">
-
-            <LinearLayout
-                android:id="@+id/linearLayout2"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/shape_circle"
-                android:backgroundTint="@color/white">
-
-                <ImageButton
-                    android:id="@+id/btn_reject"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:background="#00000000"
-                    android:padding="10dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/icon_cross"
-                    app:tint="@color/darkShade2" />
-
-            </LinearLayout>
+            android:layout_toEndOf="@+id/linear_layout_comment">
 
             <LinearLayout
                 android:id="@+id/linearLayout3"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
+                android:layout_alignParentStart="true"
                 android:layout_marginEnd="5dp"
-                android:layout_toStartOf="@+id/linearLayout2"
                 android:background="@drawable/shape_circle"
                 android:backgroundTint="@color/white">
 
@@ -205,14 +215,36 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_toEndOf="@+id/linearLayout3"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/shape_circle"
+                android:backgroundTint="@color/white">
+
+                <ImageButton
+                    android:id="@+id/btn_reject"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center"
+                    android:background="#00000000"
+                    android:padding="10dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/icon_cross"
+                    app:tint="@color/darkShade2" />
+
+            </LinearLayout>
+
             <TextView
-                android:layout_width="20dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/linearLayout3"
-                android:gravity="bottom"
+                android:layout_toEndOf="@+id/linearLayout2"
+                android:gravity="center"
                 android:text="This post from a student has not been approved yet. Do you want to approve it?"
                 android:textColor="@color/darkShade1"
                 android:textSize="12sp" />

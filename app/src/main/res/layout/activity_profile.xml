@@ -25,7 +25,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:src="@drawable/my_profile_picture" />
+            android:src="@drawable/teacher" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -40,36 +40,50 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <LinearLayout
-                android:id="@+id/linearLayout"
+            <FrameLayout
+                android:id="@+id/frameLayout"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="10dp"
                 android:background="@drawable/shape_circle"
-                android:backgroundTint="@color/white">
+                android:backgroundTint="@color/darkShade4">
+
+                <View
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/white"
+                    android:layout_gravity="center" />
 
                 <ImageButton
                     android:id="@+id/btn_back"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:layout_gravity="center"
                     android:background="#00000000"
                     android:padding="10dp"
                     android:scaleType="fitXY"
                     android:src="@drawable/icon_back"
-                    app:tint="@color/darkShade4" />
+                    app:tint="@color/darkShade4"
+                    android:layout_gravity="center" />
 
-            </LinearLayout>
+            </FrameLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="10dp"
-                android:layout_marginTop="40dp"
-                android:layout_toEndOf="@+id/linearLayout"
+                android:layout_marginTop="10dp"
+                android:layout_toEndOf="@+id/frameLayout"
                 android:background="@drawable/shape_circle"
-                android:backgroundTint="@color/white">
+                android:backgroundTint="@color/darkShade4">
+
+                <View
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/white"
+                    android:layout_gravity="center" />
 
                 <ImageButton
                     android:id="@+id/btn_edit"
@@ -82,7 +96,7 @@
                     android:src="@drawable/icon_edit"
                     app:tint="@color/darkShade4" />
 
-            </LinearLayout>
+            </FrameLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/profile_picture_area"
@@ -95,12 +109,14 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:orientation="vertical"
-                    app:layout_constraintWidth_default="spread"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
+                    app:layout_constraintVertical_bias="1.0"
+                    app:layout_constraintWidth_default="spread" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -121,11 +137,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
+                    android:layout_marginTop="0dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:maxLines="2"
-                    android:ellipsize="end"
-                    android:text="Naif Haider Chowdhury"
+                    android:text="Lorem Ipsum Khan"
                     android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -225,7 +242,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="2132020032"
+                        android:text="2132020000"
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 
@@ -275,7 +292,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="NHC"
+                        android:text="LIK"
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 

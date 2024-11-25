@@ -19,9 +19,12 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
             return new HomeFragment();
         }
         else if(position==1) {
-            return new CoursesFragment();
+            return new ChatsFragment();
         }
         else if(position==2) {
+            return new CoursesFragment();
+        }
+        else if(position==3) {
             return new DepartmentFragment();
         }
         else {
@@ -31,6 +34,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 3;
+        return 4;
     }
 }

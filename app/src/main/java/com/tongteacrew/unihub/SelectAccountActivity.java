@@ -1,6 +1,7 @@
 package com.tongteacrew.unihub;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -21,10 +22,10 @@ public class SelectAccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_account);
 
-        // To keep navigation bar, but make status bar transparent
+        // To make dark status bar background
         Window window = getWindow();
-        window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        window.setStatusBarColor(Color.TRANSPARENT);
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.darkShade4));
+        window.getDecorView().setSystemUiVisibility(0);
 
         btnBack = findViewById(R.id.btn_back);
         btn_student = findViewById(R.id.btn_student);
@@ -41,7 +42,7 @@ public class SelectAccountActivity extends AppCompatActivity {
         btn_student.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SelectAccountActivity.this, ProfileActivity.class);
+                Intent intent = new Intent(SelectAccountActivity.this, RegisterAuthInfoActivity.class);
                 intent.putExtra("account_type", "student");
                 SelectAccountActivity.this.startActivity(intent);
             }
@@ -51,7 +52,7 @@ public class SelectAccountActivity extends AppCompatActivity {
         btn_faculty_member.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SelectAccountActivity.this, ProfileActivity.class);
+                Intent intent = new Intent(SelectAccountActivity.this, RegisterAuthInfoActivity.class);
                 intent.putExtra("account_type", "faculty_member");
                 SelectAccountActivity.this.startActivity(intent);
             }

@@ -39,13 +39,18 @@ public class HomeActivity extends AppCompatActivity {
                     fragmentName.setText("Home");
                     return true;
                 }
-                else if(item.getItemId()==R.id.nav_courses) {
+                else if(item.getItemId()==R.id.nav_chats) {
                     viewPager.setCurrentItem(1);
+                    fragmentName.setText("Chats");
+                    return true;
+                }
+                else if(item.getItemId()==R.id.nav_courses) {
+                    viewPager.setCurrentItem(2);
                     fragmentName.setText("My Courses");
                     return true;
                 }
                 else if(item.getItemId()==R.id.nav_department) {
-                    viewPager.setCurrentItem(2);
+                    viewPager.setCurrentItem(3);
                     fragmentName.setText("Department");
                     return true;
                 }
@@ -66,10 +71,14 @@ public class HomeActivity extends AppCompatActivity {
                     fragmentName.setText("Home");
                 }
                 else if(position==1) {
+                    bottomNavigationView.setSelectedItemId(R.id.nav_chats);
+                    fragmentName.setText("Chats");
+                }
+                else if(position==2) {
                     bottomNavigationView.setSelectedItemId(R.id.nav_courses);
                     fragmentName.setText("My Courses");
                 }
-                else if(position==2) {
+                else if(position==3) {
                     bottomNavigationView.setSelectedItemId(R.id.nav_department);
                     fragmentName.setText("Department");
                 }

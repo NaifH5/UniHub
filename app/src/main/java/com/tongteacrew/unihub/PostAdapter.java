@@ -3,6 +3,7 @@ package com.tongteacrew.unihub;
 import static java.lang.Math.min;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,6 +42,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         this.departmentPosts = departmentPosts;
     }
 
+    @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new PostViewHolder(LayoutInflater.from(context).inflate(R.layout.card_department_post, parent, false));
@@ -103,6 +106,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             holder.linearLayoutComment.setVisibility(View.GONE);
             holder.btnOptions.setVisibility(View.GONE);
         }
+
+        holder.btnComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, PostRepliesActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
+        holder.btnOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(context, v);
+                popup.getMenuInflater().inflate(R.menu.post_overflow_menu, popup.getMenu());
+                popup.show();
+            }
+        });
     }
 
     @Override

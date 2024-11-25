@@ -44,18 +44,15 @@ public class DepartmentInformationActivity extends AppCompatActivity {
     void generateTestMemberList() {
 
         ArrayList<String> as = new ArrayList<>();
-        as.add("Naif Haider Chowdhury");
-        as.add("Student");
+        as.add("Lorem Ipsum Khan");
+        as.add("Faculty Member");
+        as.add("https://www.pbs.org/newshour/app/uploads/2017/02/GettyImages-200193780-001-1024x768.jpg");
         departmentMembers.add(as);
 
         as = new ArrayList<>();
-        as.add("Shahriar Jahan Sunny");
+        as.add("Lorem Ipsum Ahmed");
         as.add("Student");
-        departmentMembers.add(as);
-
-        as = new ArrayList<>();
-        as.add("Md. Ali Hossain Sagor");
-        as.add("Student");
+        as.add("https://i.pinimg.com/736x/5a/ab/f8/5aabf84d67477f77d3bb8f0fe4cfcd17.jpg");
         departmentMembers.add(as);
     }
 }
