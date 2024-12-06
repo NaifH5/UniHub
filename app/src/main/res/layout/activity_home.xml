@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -52,5 +53,157 @@
         app:itemIconTint="@drawable/selector_bottom_navigation_view"
         app:itemTextColor="@drawable/selector_bottom_navigation_view"
         app:menu="@menu/bottom_navigation_menu" />
+
+    <RelativeLayout
+        android:id="@+id/parent_relative_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/profile_dropdown"
+        android:layout_width="150dp"
+        android:layout_height="159dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="-8dp"
+        android:layout_marginEnd="10dp"
+        android:visibility="gone" >
+
+        <View
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:rotation="45"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="15dp"
+            android:background="@color/white" />
+
+        <RelativeLayout
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/shape_round_rectangle"
+            android:backgroundTint="@color/darkShade4" >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shape_round_rectangle_outline" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:rotation="45"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="16dp"
+            android:background="@color/darkShade4" />
+
+        <Button
+            android:id="@+id/btn_profile"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/shape_circle"
+            android:backgroundTint="@color/white"
+            android:text="Profile"
+            android:textAllCaps="false"
+            android:textColor="@color/darkShade4" />
+
+        <Button
+            android:id="@+id/btn_logout"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginTop="2dp"
+            android:layout_below="@+id/btn_profile"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/shape_circle"
+            android:backgroundTint="@color/white"
+            android:text="Logout"
+            android:textAllCaps="false"
+            android:textColor="@color/darkShade4" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_logout"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:textSize="12sp"
+                android:text="Developers" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/white" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearLayout2"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp" >
+
+            <ImageButton
+                android:id="@+id/btn_dev_1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="#00000000"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_default_profile"
+                app:tint="@color/white" />
+
+            <ImageButton
+                android:id="@+id/btn_dev_2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="5dp"
+                android:layout_toEndOf="@+id/btn_dev_1"
+                android:background="#00000000"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_default_profile"
+                app:tint="@color/white" />
+
+            <ImageButton
+                android:id="@+id/btn_dev_3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="5dp"
+                android:layout_toEndOf="@+id/btn_dev_2"
+                android:background="#00000000"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_default_profile"
+                app:tint="@color/white" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
 
 </RelativeLayout>

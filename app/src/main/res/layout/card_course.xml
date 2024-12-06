@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="2dp"
     android:paddingBottom="2dp" >
 
     <RelativeLayout
+        android:id="@+id/course_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="5dp"
@@ -17,7 +19,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/delete_section"
             android:text="Course Code"
             android:textColor="@color/white"
             android:textSize="16sp" />
@@ -28,7 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/course_code"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/delete_section"
             android:text="Course Title"
             android:textColor="@color/white"
             android:textSize="16sp" />
@@ -39,7 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/course_title"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/delete_section"
             android:text="Credit"
             android:textColor="@color/white"
             android:textSize="16sp" />
@@ -50,7 +55,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/credit"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/delete_section"
             android:text="Sections"
             android:textColor="@color/white"
             android:textSize="16sp" />
@@ -61,10 +67,34 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/sections"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/delete_section"
             android:text="Prerequisite"
             android:textColor="@color/white"
             android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/delete_section"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/shape_circle"
+            android:backgroundTint="@color/white">
+
+            <ImageButton
+                android:id="@+id/btn_delete"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="#00000000"
+                android:padding="10dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_delete"
+                app:tint="@color/darkShade4" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 

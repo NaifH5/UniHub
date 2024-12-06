@@ -92,7 +92,6 @@ public class EditProfileActivity extends AppCompatActivity {
         else if(Objects.equals(accountType, "faculty_member")) {
             batchSection.setVisibility(View.GONE);
             sectionSection.setVisibility(View.GONE);
-            idSection.setVisibility(View.GONE);
         }
 
         btnBack.setOnClickListener(new View.OnClickListener() {

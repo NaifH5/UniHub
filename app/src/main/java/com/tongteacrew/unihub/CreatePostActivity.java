@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class CreatePostActivity extends AppCompatActivity {
 
-    ImageButton addImage;
+    ImageButton addImage, btnBack;
     LinearLayout selectedMedia;
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     RecyclerView filesRecyclerView;
@@ -32,9 +32,11 @@ public class CreatePostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_post);
 
         addImage = findViewById(R.id.btn_attach_file);
+        btnBack = findViewById(R.id.btn_back);
         selectedMedia = findViewById(R.id.selected_media);
 
         filesRecyclerView = findViewById(R.id.media_recycler_view);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         filesRecyclerView.setLayoutManager(layoutManager);
         filesRecyclerView.setHasFixedSize(true);
@@ -72,6 +74,13 @@ public class CreatePostActivity extends AppCompatActivity {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                         .build());
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }

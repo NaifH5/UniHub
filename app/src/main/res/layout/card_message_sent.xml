@@ -1,0 +1,62 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:padding="5dp" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/relativeLayout8"
+        android:layout_gravity="bottom"
+        android:layout_marginEnd="5dp"
+        android:layout_toStartOf="@+id/relativeLayout8"
+        android:orientation="vertical"
+        android:paddingEnd="5dp" >
+
+        <TextView
+            android:id="@+id/time_sent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="10:00PM"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/date_sent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="21/08/2024"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/relativeLayout8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/shape_round_rectangle"
+        android:backgroundTint="@color/darkShade1"
+        android:orientation="vertical"
+        android:paddingStart="5dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="15dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/text_sent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="30dp"
+            android:maxWidth="265dp"
+            android:paddingBottom="5dp"
+            android:text="Hello"
+            android:layout_gravity="end"
+            android:textColor="@color/darkShade4" />
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,61 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:padding="5dp" >
+
+    <LinearLayout
+        android:id="@+id/relativeLayout8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/shape_round_rectangle"
+        android:backgroundTint="@color/darkShade2"
+        android:orientation="vertical"
+        android:paddingStart="5dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="15dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/text_received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="30dp"
+            android:maxWidth="265dp"
+            android:paddingBottom="5dp"
+            android:text="Hello"
+            android:layout_gravity="end"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/relativeLayout8"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="5dp"
+        android:layout_toEndOf="@+id/relativeLayout8"
+        android:orientation="vertical"  >
+
+        <TextView
+            android:id="@+id/time_received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="10:00PM"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/date_received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:text="21/08/2024"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

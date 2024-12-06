@@ -93,6 +93,10 @@ public class DepartmentFragment extends Fragment {
                             Intent intent = new Intent(getContext(), AddCourseOfferingActivity.class);
                             requireContext().startActivity(intent);
                         }
+                        else if(item.getItemId()==R.id.routine) {
+                            Intent intent = new Intent(getContext(), AddRoutineActivity.class);
+                            requireContext().startActivity(intent);
+                        }
 
                         return true;
                     }

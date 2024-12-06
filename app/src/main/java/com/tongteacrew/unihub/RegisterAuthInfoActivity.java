@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;

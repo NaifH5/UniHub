@@ -4,8 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -13,9 +18,12 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class HomeActivity extends AppCompatActivity {
 
+    RelativeLayout profileDropdown, parentRelativeLayout;
     ViewPager2 viewPager;
     BottomNavigationView bottomNavigationView;
     TextView fragmentName;
+    Button btnProfile, btnLogout;
+    ImageButton btnProfilePicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,9 +31,14 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        parentRelativeLayout = findViewById(R.id.parent_relative_layout);
+        profileDropdown = findViewById(R.id.profile_dropdown);
+        btnProfile = findViewById(R.id.btn_profile);
+        btnLogout = findViewById(R.id.btn_logout);
         viewPager = findViewById(R.id.view_pager);
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         fragmentName = findViewById(R.id.fragment_name);
+        btnProfilePicture = findViewById(R.id.btn_profile_picture);
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
@@ -82,6 +95,42 @@ public class HomeActivity extends AppCompatActivity {
                     bottomNavigationView.setSelectedItemId(R.id.nav_department);
                     fragmentName.setText("Department");
                 }
+            }
+        });
+
+        btnProfilePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profileDropdown.setVisibility(View.VISIBLE);
+                parentRelativeLayout.setVisibility(View.VISIBLE);
+            }
+        });
+
+        parentRelativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profileDropdown.setVisibility(View.GONE);
+                parentRelativeLayout.setVisibility(View.GONE);
+            }
+        });
+
+        btnProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profileDropdown.setVisibility(View.GONE);
+                parentRelativeLayout.setVisibility(View.GONE);
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                HomeActivity.this.startActivity(intent);
+            }
+        });
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profileDropdown.setVisibility(View.GONE);
+                parentRelativeLayout.setVisibility(View.GONE);
+                Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+                HomeActivity.this.startActivity(intent);
             }
         });
     }

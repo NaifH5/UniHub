@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:background="@drawable/shape_round_rectangle"
+        android:backgroundTint="@color/darkShade2" >
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="40dp" >
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true" >
+
+                <ImageView
+                    android:id="@+id/profile_picture"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/icon_default_profile" />
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/circular_progress_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:indeterminate="true"
+                    android:visibility="visible"
+                    app:indeterminateAnimationType="contiguous"
+                    app:trackColor="@color/white" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_toStartOf="@+id/btn_options"
+                android:layout_toEndOf="@+id/relativeLayout3"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Naif Haider Chowdhury"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_options"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_toStartOf="@+id/linearLayout4"
+                android:background="#00000000"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_options"
+                app:tint="@color/white" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal" >
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/name"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="10dp"
+                android:layout_toStartOf="@+id/btn_options"
+                android:layout_toEndOf="@+id/relativeLayout3"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="06:00 pm  02 Oct 2024"
+                android:textColor="@color/darkShade1"
+                android:textSize="12sp" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/relativeLayout2"
+            android:layout_marginTop="5dp"
+            android:justificationMode="inter_word"
+            android:text="Hello."
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <GridView
+            android:id="@+id/media_gridview"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_below="@+id/message"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:fadeScrollbars="false"
+            android:scrollbarThumbVertical="@android:color/transparent"
+            android:numColumns="4"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="5dp"
+            android:horizontalSpacing="5dp"
+            android:visibility="gone"
+            tools:listitem="@layout/card_media" />
+
+        <TextView
+            android:id="@+id/deadline"
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/media_gridview"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Deadline: 28 Dec 2024"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_below="@+id/deadline"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal" >
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linear_layout_queries"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_toEndOf="@+id/linear_layout"
+            android:layout_below="@+id/deadline"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/shape_circle"
+            android:backgroundTint="@color/white">
+
+            <ImageButton
+                android:id="@+id/btn_queries"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:background="#00000000"
+                android:padding="10dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_comment"
+                app:tint="@color/darkShade2" />
+
+            <TextView
+                android:id="@+id/comment_count"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:text="0"
+                android:textColor="@color/darkShade4"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/not_approved"
+            android:layout_width="100dp"
+            android:layout_height="48dp"
+            android:layout_below="@+id/deadline"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_toEndOf="@+id/linear_layout_queries">
+
+            <LinearLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/shape_circle"
+                android:backgroundTint="@color/white" >
+
+                <Button
+                    android:id="@+id/btn_submit_assignment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/white"
+                    android:text="Submit Assignment"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:textColor="@color/darkShade4"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_toEndOf="@+id/linearLayout3"
+                android:background="@drawable/shape_circle"
+                android:backgroundTint="@color/white">
+
+                <Button
+                    android:id="@+id/btn_check_submissions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/white"
+                    android:text="Submissions"
+                    android:textAllCaps="false"
+                    android:textStyle="bold"
+                    android:textColor="@color/darkShade4"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

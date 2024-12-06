@@ -11,7 +11,45 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         tools:targetApi="31">
+
         <!-- Activities -->
+
+        <activity
+            android:name=".AllCoursesActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".CheckSubmissionsActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".SubmitAssignmentActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".GroupInfoActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".QueriesActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".CreateAnnouncementActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".CourseGroupActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
+        <activity
+            android:name=".AddRoutineActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
         <activity
             android:name=".AddCourseOfferingActivity"
             android:exported="false"
