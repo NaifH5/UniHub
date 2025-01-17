@@ -1,5 +1,6 @@
 package com.tongteacrew.unihub;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -13,11 +14,26 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginActivity extends AppCompatActivity {
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    RelativeLayout loginAndRegisterPanel;
+    ProgressBar loginProgressBar;
     ImageView btnPasswordVisibilityInLogin;
-    EditText passwordInLogin;
+    EditText emailInLogin, passwordInLogin;
     Button btnRegisterInLogin, btnLoginInLogin;
 
     @Override
@@ -31,7 +47,10 @@ public class LoginActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.white));
         window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
+        loginAndRegisterPanel = findViewById(R.id.login_and_register_panel);
+        loginProgressBar = findViewById(R.id.login_progress_bar);
         btnPasswordVisibilityInLogin = findViewById(R.id.btn_password_visibility_in_login);
+        emailInLogin = findViewById(R.id.email_in_login);
         passwordInLogin = findViewById(R.id.password_in_login);
         btnLoginInLogin = findViewById(R.id.btn_add_to_my_clubs);
         btnRegisterInLogin = findViewById(R.id.btn_register_in_login);
@@ -59,8 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLoginInLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                LoginActivity.this.startActivity(intent);
+                login();
             }
         });
 
@@ -70,6 +88,45 @@ public class LoginActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(LoginActivity.this, SelectAccountActivity.class);
                 LoginActivity.this.startActivity(intent);
+            }
+        });
+    }
+
+    void login() {
+
+        String email = String.valueOf(emailInLogin.getText());
+        String password = String.valueOf(passwordInLogin.getText());
+
+        if(email.equals("") || password.equals("")) {
+            Toast.makeText(LoginActivity.this, "Incorrect credentials!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        loginAndRegisterPanel.setVisibility(View.GONE);
+        loginProgressBar.setVisibility(View.VISIBLE);
+
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+
+                loginAndRegisterPanel.setVisibility(View.VISIBLE);
+                loginProgressBar.setVisibility(View.GONE);
+
+                if(task.isSuccessful()) {
+                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    LoginActivity.this.startActivity(intent);
+                    finish();
+                }
+                else {
+                    Toast.makeText(LoginActivity.this, "Incorrect credentials!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(LoginActivity.this, "Failed to login!", Toast.LENGTH_SHORT).show();
+                loginAndRegisterPanel.setVisibility(View.VISIBLE);
+                loginProgressBar.setVisibility(View.GONE);
             }
         });
     }

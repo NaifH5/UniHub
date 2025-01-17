@@ -13,8 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <ImageView
-            android:id="@+id/department_image"
+        <RelativeLayout
+            android:id="@+id/relativeLayout3"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
@@ -24,8 +24,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:src="@drawable/teacher" />
+            app:layout_constraintBottom_toBottomOf="parent" >
+
+            <ImageView
+                android:id="@+id/profile_picture"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/icon_default_profile" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/circular_progress_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indeterminateAnimationType="contiguous"
+                app:trackColor="@color/white" />
+
+        </RelativeLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -70,6 +87,7 @@
             </FrameLayout>
 
             <FrameLayout
+                android:id="@+id/edit_frame_layout"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginStart="10dp"
@@ -138,38 +156,15 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginEnd="10dp"
-                    android:layout_toStartOf="@+id/linearLayout8"
+                    android:layout_alignParentEnd="true"
                     android:ellipsize="end"
                     android:maxLines="2"
                     android:paddingStart="20dp"
                     android:paddingEnd="20dp"
-                    android:text="Lorem Ipsum Khan"
+                    android:text=""
                     android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/linearLayout8"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="20dp"
-                    android:background="@drawable/shape_circle"
-                    android:backgroundTint="@color/white">
-
-                    <ImageButton
-                        android:id="@+id/btn_message"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:background="#00000000"
-                        android:padding="10dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/icon_chats"
-                        app:tint="@color/darkShade4" />
-
-                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/department_layout"
@@ -191,7 +186,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="Computer Science &amp; Engineering"
+                        android:text=""
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 
@@ -216,7 +211,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="Batch 58"
+                        android:text=""
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 
@@ -241,7 +236,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="Section A"
+                        android:text=""
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 
@@ -266,7 +261,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="2132020000"
+                        android:text=""
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 
@@ -291,7 +286,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="Lecturer"
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 
@@ -316,7 +310,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:text="LIK"
+                        android:text=""
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 
@@ -349,7 +343,7 @@
                         android:paddingStart="20dp"
                         android:paddingEnd="20dp"
                         android:justificationMode="inter_word"
-                        android:text="@string/lorem_ipsum"
+                        android:text=""
                         android:textColor="@color/darkShade1"
                         android:textSize="16sp" />
 

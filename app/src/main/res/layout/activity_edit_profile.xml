@@ -93,12 +93,29 @@
                     android:background="@drawable/shape_circle"
                     android:backgroundTint="@color/darkShade4" />
 
-                <ImageView
-                    android:id="@+id/department_image"
-                    android:layout_width="240dp"
-                    android:layout_height="240dp"
+                <RelativeLayout
+                    android:id="@+id/relativeLayout3"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/icon_default_profile" />
+                    android:layout_width="240dp"
+                    android:layout_height="240dp" >
+
+                    <ImageView
+                        android:id="@+id/profile_picture"
+                        android:layout_width="240dp"
+                        android:layout_height="240dp"
+                        android:src="@drawable/icon_default_profile" />
+
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/circular_progress_indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:indeterminate="true"
+                        android:visibility="visible"
+                        app:indeterminateAnimationType="contiguous"
+                        app:trackColor="@color/white" />
+
+                </RelativeLayout>
 
                 <ImageButton
                     android:id="@+id/btn_select"
@@ -160,7 +177,7 @@
                     android:background="@null"
                     android:hint="Full Name"
                     android:inputType="textPersonName"
-                    android:textColor="@color/darkShade1"
+                    android:textColor="@color/white"
                     android:textSize="14sp" />
 
                 <ImageView
@@ -610,7 +627,20 @@
                 android:backgroundTint="@color/white"
                 android:text="Update Profile"
                 android:textAllCaps="false"
+                android:visibility="visible"
                 android:textColor="@color/darkShade4" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_update_profile"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:layout_centerHorizontal="true"
+                android:visibility="gone" />
 
         </RelativeLayout>
 

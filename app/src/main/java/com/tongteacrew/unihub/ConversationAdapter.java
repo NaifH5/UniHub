@@ -18,17 +18,25 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Objects;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder> {
 
     Context context;
-    ArrayList<ArrayList<String>> conversation;
+    ArrayList<Map<String, Object>> user;
 
-    public ConversationAdapter(Context context, ArrayList<ArrayList<String>> conversation) {
+    public ConversationAdapter(Context context, ArrayList<Map<String, Object>> user) {
         this.context = context;
-        this.conversation = conversation;
+        this.user = user;
     }
 
     @NonNull
@@ -41,9 +49,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public void onBindViewHolder(@NonNull ConversationAdapter.ConversationViewHolder holder, int position) {
 
         int index = holder.getAdapterPosition();
+        holder.progressIndicator.setVisibility(View.VISIBLE);
 
         Glide.with(context)
-                .load(conversation.get(index).get(0))
+                .load(user.get(index).get("profilePicture"))
                 .error(R.drawable.icon_default_profile)
                 .placeholder(R.drawable.icon_default_profile)
                 .into(new CustomTarget<Drawable>(){
@@ -59,15 +68,35 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                         holder.progressIndicator.setVisibility(View.GONE);
                         holder.userProfilePicture.setImageDrawable(placeholder);
                     }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        holder.progressIndicator.setVisibility(View.GONE);
+                    }
                 });
 
-        holder.userName.setText(conversation.get(index).get(1));
-        holder.time.setText(conversation.get(index).get(2));
+        holder.userName.setText(String.valueOf(user.get(index).get("fullName")));
+
+        if(user.get(index).containsKey("lastMessagedAt")) {
+            holder.time.setVisibility(View.VISIBLE);
+            holder.time.setText(String.valueOf(user.get(index).get("lastMessagedAt")));
+        }
+        else {
+            holder.time.setVisibility(View.GONE);
+        }
+
+        if((Boolean) user.get(index).get("isOnline")) {
+            holder.onlineStatus.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.onlineStatus.setVisibility(View.GONE);
+        }
 
         holder.chatRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ChatActivity.class);
+                intent.putExtra("userData", (Serializable) user.get(index));
                 context.startActivity(intent);
             }
         });
@@ -75,7 +104,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     @Override
     public int getItemCount() {
-        return conversation.size();
+        return user.size();
     }
 
     public static class ConversationViewHolder extends RecyclerView.ViewHolder {
@@ -83,7 +112,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         ImageView userProfilePicture;
         TextView userName, time;
         CircularProgressIndicator progressIndicator;
-        RelativeLayout chatRelativeLayout;
+        RelativeLayout chatRelativeLayout, onlineStatus;
 
         public ConversationViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -92,6 +121,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             time = itemView.findViewById(R.id.time);
             progressIndicator = itemView.findViewById(R.id.circular_progress_indicator);
             chatRelativeLayout = itemView.findViewById(R.id.chat_relative_layout);
+            onlineStatus = itemView.findViewById(R.id.online_status);
         }
     }
 }

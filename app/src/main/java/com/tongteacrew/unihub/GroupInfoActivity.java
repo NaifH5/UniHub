@@ -31,17 +31,17 @@ public class GroupInfoActivity extends AppCompatActivity {
         studentsRecyclerView = findViewById(R.id.students_recycler_view);
 
         teacherRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
-        teacherRecyclerView.setHasFixedSize(true);
+        //teacherRecyclerView.setHasFixedSize(true);
         groupMembersAdapter = new GroupMembersAdapter(GroupInfoActivity.this, courseTeacher);
         teacherRecyclerView.setAdapter(groupMembersAdapter);
 
         crRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
-        crRecyclerView.setHasFixedSize(true);
+        //crRecyclerView.setHasFixedSize(true);
         groupMembersAdapter = new GroupMembersAdapter(GroupInfoActivity.this, classRepresentative);
         crRecyclerView.setAdapter(groupMembersAdapter);
 
         studentsRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
-        studentsRecyclerView.setHasFixedSize(true);
+        //studentsRecyclerView.setHasFixedSize(true);
         groupMembersAdapter = new GroupMembersAdapter(GroupInfoActivity.this, students);
         studentsRecyclerView.setAdapter(groupMembersAdapter);
 

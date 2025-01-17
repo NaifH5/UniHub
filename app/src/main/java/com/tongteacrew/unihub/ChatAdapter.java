@@ -4,21 +4,26 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
     Context context;
-    ArrayList<ArrayList<String>> messages;
-    String myID = "0";
+    ArrayList<Map<String, Object>> messages;
+    String myID = mAuth.getCurrentUser().getUid();
 
-    public ChatAdapter(Context context, ArrayList<ArrayList<String>> messages) {
+    public ChatAdapter(Context context, ArrayList<Map<String, Object>> messages) {
         this.context = context;
         this.messages = messages;
     }
@@ -40,15 +45,24 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatAdapter.ChatViewHolder holder, int position) {
 
-        if(Objects.equals(messages.get(position).get(0), myID)) {
-            holder.messageSent.setText(messages.get(position).get(1));
-            holder.timeSent.setText(messages.get(position).get(2));
-            holder.dateSent.setText(messages.get(position).get(3));
+        if(Objects.equals(messages.get(position).get("sender"), myID)) {
+
+            holder.messageSent.setText(messages.get(position).get("text").toString());
+            holder.timeSent.setText(messages.get(position).get("time").toString());
+            holder.dateSent.setText(messages.get(position).get("date").toString());
+            boolean isSent = (boolean) messages.get(position).get("isSent");
+
+            if(isSent) {
+                holder.delivered.setVisibility(View.VISIBLE);
+            }
+            else {
+                holder.delivered.setVisibility(View.GONE);
+            }
         }
         else {
-            holder.messageReceived.setText(messages.get(position).get(1));
-            holder.timeReceived.setText(messages.get(position).get(2));
-            holder.dateReceived.setText(messages.get(position).get(3));
+            holder.messageReceived.setText(messages.get(position).get("text").toString());
+            holder.timeReceived.setText(messages.get(position).get("time").toString());
+            holder.dateReceived.setText(messages.get(position).get("date").toString());
         }
     }
 
@@ -60,7 +74,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public int getItemViewType(int position) {
 
-        if(Objects.equals(messages.get(position).get(0), myID)) {
+        if(Objects.equals(messages.get(position).get("sender"), myID)) {
             return 0;
         }
         else {
@@ -71,6 +85,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
 
         TextView messageReceived, timeReceived, dateReceived, messageSent, timeSent, dateSent;
+        ImageView delivered;
 
         public ChatViewHolder(@NonNull View itemView) {
 
@@ -81,6 +96,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             messageSent = itemView.findViewById(R.id.text_sent);
             timeSent = itemView.findViewById(R.id.time_sent);
             dateSent = itemView.findViewById(R.id.date_sent);
+            delivered = itemView.findViewById(R.id.delivered);
         }
     }
 }

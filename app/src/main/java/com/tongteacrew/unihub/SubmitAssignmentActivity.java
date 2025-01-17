@@ -37,7 +37,7 @@ public class SubmitAssignmentActivity extends AppCompatActivity {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         filesRecyclerView.setLayoutManager(layoutManager);
-        filesRecyclerView.setHasFixedSize(true);
+        //filesRecyclerView.setHasFixedSize(true);
         filesAdapter = new FilesAdapter(SubmitAssignmentActivity.this, files, selectedMedia);
         filesRecyclerView.setAdapter(filesAdapter);
 

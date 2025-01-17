@@ -28,16 +28,26 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
+    FirebaseUser user = mAuth.getCurrentUser();
     Context context;
-    ArrayList<DepartmentPost> departmentPosts;
+    ArrayList<Map<String, Object>> departmentPosts;
 
-    public PostAdapter(Context context, ArrayList<DepartmentPost> departmentPosts) {
+    public PostAdapter(Context context, ArrayList<Map<String, Object>> departmentPosts) {
         this.context = context;
         this.departmentPosts = departmentPosts;
     }
@@ -51,55 +61,85 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
 
-        int index = holder.getAdapterPosition();
+        int index = departmentPosts.size()-position-1;
+        holder.progressIndicator.setVisibility(View.VISIBLE);
 
-        Glide.with(context)
-                .load(departmentPosts.get(index).posterProfilePicture)
-                .error(R.drawable.icon_photo)
-                .placeholder(R.drawable.icon_photo)
-                .into(new CustomTarget<Drawable>(){
+        if(departmentPosts.get(index).containsKey("profilePicture")) {
+            Glide.with(context)
+                    .load(departmentPosts.get(index).get("profilePicture"))
+                    .error(R.drawable.icon_photo)
+                    .placeholder(R.drawable.icon_photo)
+                    .into(new CustomTarget<Drawable>(){
 
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        holder.progressIndicator.setVisibility(View.GONE);
-                        Glide.with(context).load(resource).circleCrop().into(holder.posterProfilePicture);
-                    }
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                            holder.progressIndicator.setVisibility(View.GONE);
+                            Glide.with(context).load(resource).circleCrop().into(holder.posterProfilePicture);
+                        }
 
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-                        holder.progressIndicator.setVisibility(View.GONE);
-                        holder.posterProfilePicture.setImageDrawable(placeholder);
-                    }
-                });
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            holder.progressIndicator.setVisibility(View.GONE);
+                        }
 
-        holder.posterName.setText(departmentPosts.get(index).posterName);
-        holder.postTime.setText(departmentPosts.get(index).postTime);
-        holder.post.setText(departmentPosts.get(index).post);
-        holder.textAccountType.setText(departmentPosts.get(index).textAccountType);
-
-        MediaGridAdapter mediaGridAdapter = new MediaGridAdapter(context, departmentPosts.get(index).mediaList);
-        holder.mediaGridview.setAdapter(mediaGridAdapter);
-
-        // To dynamically set the width of the medias
-        if(departmentPosts.get(index).mediaList.size()>0) {
-            holder.mediaGridview.post(new Runnable() {
-                @Override
-                public void run() {
-
-                    int rowNum = departmentPosts.get(index).mediaList.size()/4 + min(1, departmentPosts.get(index).mediaList.size()%4);
-                    int arrayListSize = departmentPosts.get(index).mediaList.size();
-                    int height = (holder.mediaGridview.getWidth()-5*(min(arrayListSize, 4)-1))/min(arrayListSize, 4);
-
-                    holder.mediaGridview.getLayoutParams().height = height*rowNum+5*(rowNum-1);
-                    holder.mediaGridview.setNumColumns(min(arrayListSize, 4));
-                }
-            });
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                            holder.progressIndicator.setVisibility(View.GONE);
+                            holder.posterProfilePicture.setImageDrawable(placeholder);
+                        }
+                    });
         }
         else {
-            holder.mediaGridview.setVisibility(View.GONE);
+            holder.progressIndicator.setVisibility(View.GONE);
         }
 
-        if(departmentPosts.get(index).adminApproved) {
+        holder.posterName.setText(String.valueOf(departmentPosts.get(index).get("fullName")));
+        holder.postTime.setText(String.valueOf(departmentPosts.get(index).get("time")));
+        holder.post.setText(String.valueOf(departmentPosts.get(index).get("text")));
+
+        if(String.valueOf(departmentPosts.get(index).get("accountType")).equals("student")) {
+            holder.textAccountType.setText("Student");
+        }
+        else {
+            holder.textAccountType.setText("Faculty Member");
+        }
+
+        getMedias(String.valueOf(departmentPosts.get(index).get("postId")), new FirebaseCallback() {
+            @Override
+            public void onCallback(Object data) {
+
+                if(data!=null) {
+
+                    ArrayList<String> medias = (ArrayList<String>) data;
+                    MediaGridAdapter mediaGridAdapter = new MediaGridAdapter(context, medias);
+                    holder.mediaGridview.setAdapter(mediaGridAdapter);
+
+                    // To dynamically set the width of the medias
+                    if(medias.size()>0) {
+
+                        holder.mediaGridview.setVisibility(View.VISIBLE);
+
+                        holder.mediaGridview.post(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                int rowNum = medias.size()/4 + min(1, medias.size()%4);
+                                int arrayListSize = medias.size();
+                                int height = (holder.mediaGridview.getWidth()-5*(min(arrayListSize, 4)-1))/min(arrayListSize, 4);
+
+                                holder.mediaGridview.getLayoutParams().height = height*rowNum+5*(rowNum-1);
+                                holder.mediaGridview.setNumColumns(min(arrayListSize, 4));
+                            }
+                        });
+                    }
+                    else {
+                        holder.mediaGridview.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+
+        if((Boolean) departmentPosts.get(index).get("approval")) {
             holder.notApproved.setVisibility(View.GONE);
         }
         else {
@@ -128,6 +168,36 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @Override
     public int getItemCount() {
         return departmentPosts.size();
+    }
+
+    void getMedias(String postId, FirebaseCallback callback) {
+
+        DatabaseReference mediaReference = rootReference.child("medias").child(postId);
+        mediaReference.keepSynced(true);
+
+        mediaReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                mediaReference.removeEventListener(this);
+                ArrayList<String> medias = new ArrayList<>();
+
+                for(DataSnapshot s : snapshot.getChildren()) {
+
+                    medias.add(String.valueOf(s.getValue()));
+
+                    if(medias.size()==snapshot.getChildrenCount()) {
+                        callback.onCallback(medias);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                mediaReference.removeEventListener(this);
+                callback.onCallback(null);
+            }
+        });
     }
 
     public static class PostViewHolder extends RecyclerView.ViewHolder {

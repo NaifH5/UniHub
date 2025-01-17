@@ -74,7 +74,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         filesRecyclerView.setLayoutManager(layoutManager);
-        filesRecyclerView.setHasFixedSize(true);
+        //filesRecyclerView.setHasFixedSize(true);
         filesAdapter = new FilesAdapter(CreateAnnouncementActivity.this, files, selectedMedia);
         filesRecyclerView.setAdapter(filesAdapter);
 

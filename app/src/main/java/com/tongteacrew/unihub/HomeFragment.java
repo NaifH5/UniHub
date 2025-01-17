@@ -35,7 +35,7 @@ public class HomeFragment extends Fragment {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         scheduleRecyclerView.setLayoutManager(layoutManager);
-        scheduleRecyclerView.setHasFixedSize(true);
+        //scheduleRecyclerView.setHasFixedSize(true);
         scheduleAdapter = new ScheduleAdapter(getContext(), schedules);
         scheduleRecyclerView.setAdapter(scheduleAdapter);
 

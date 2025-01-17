@@ -88,7 +88,13 @@ public class MediaGridAdapter extends BaseAdapter {
                     }
 
                     @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        progressIndicator.setVisibility(View.GONE);
+                    }
+
+                    @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
+                        progressIndicator.setVisibility(View.GONE);
                         thumbnail.setImageDrawable(placeholder);
                     }
                 });

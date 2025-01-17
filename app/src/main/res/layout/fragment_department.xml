@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,173 +8,179 @@
     android:background="@color/darkShade4"
     tools:context=".DepartmentFragment" >
 
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        tools:context=".DepartmentFragment" >
+        android:layout_height="match_parent">
 
-        <RelativeLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constrainst_layout"
-                android:layout_alignParentTop="true"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-
-                <ImageView
-                    android:id="@+id/department_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:orientation="vertical"
-                    app:layout_constraintWidth_default="spread"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintDimensionRatio="2:1"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:src="@drawable/illustration_1" />
-
-                <LinearLayout
-                    android:id="@+id/linearLayout"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/shape_circle"
-                    android:backgroundTint="@color/white" >
-
-                    <ImageButton
-                        android:id="@+id/btn_about"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:background="#00000000"
-                        android:padding="0dp"
-                        android:scaleType="fitXY"
-                        android:src="@drawable/icon_about"
-                        app:tint="@color/darkShade4" />
-
-                </LinearLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="80dp"
-                android:layout_alignBottom="@+id/constrainst_layout"
-                android:background="@drawable/shape_gradient" />
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            tools:context=".DepartmentFragment" >
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:layout_below="@+id/constrainst_layout" >
+                android:layout_height="wrap_content" >
 
-                <TextView
-                    android:id="@+id/department_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/constrainst_layout"
                     android:layout_alignParentTop="true"
-                    android:maxLines="3"
-                    android:ellipsize="end"
-                    android:text="Department of Computer Science &amp; Engineering"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/text_posts"
-                    android:layout_width="60dp"
-                    android:layout_height="30dp"
-                    android:padding="5dp"
-                    android:layout_below="@+id/department_name"
-                    android:layout_marginTop="15dp"
-                    android:background="@drawable/shape_circle"
-                    android:backgroundTint="@color/white"
-                    android:text="Posts"
-                    android:textAlignment="center"
-                    android:textAllCaps="false"
-                    android:textColor="@color/darkShade4" />
-
-                <Button
-                    android:id="@+id/text_course_offering"
-                    android:layout_width="120dp"
-                    android:layout_height="30dp"
-                    android:layout_below="@+id/department_name"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_toEndOf="@+id/text_posts"
-                    android:background="@drawable/shape_circle_outline"
-                    android:padding="5dp"
-                    android:text="Course Offering"
-                    android:textAlignment="center"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
-
-                <Button
-                    android:id="@+id/text_routine"
-                    android:layout_width="70dp"
-                    android:layout_height="30dp"
-                    android:layout_below="@+id/department_name"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_toEndOf="@+id/text_course_offering"
-                    android:background="@drawable/shape_circle_outline"
-                    android:padding="5dp"
-                    android:text="Routine"
-                    android:textAlignment="center"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
-
-                <LinearLayout
-                    android:id="@+id/linearLayout2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/text_posts"
-                    android:orientation="horizontal" />
+                    android:layout_height="wrap_content" >
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/post_recycler_view"
+                    <ImageView
+                        android:id="@+id/department_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:orientation="vertical"
+                        app:layout_constraintWidth_default="spread"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintDimensionRatio="2:1"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:src="@drawable/illustration_1" />
+
+                    <LinearLayout
+                        android:id="@+id/linearLayout"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/shape_circle"
+                        android:backgroundTint="@color/white" >
+
+                        <ImageButton
+                            android:id="@+id/btn_about"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_gravity="center"
+                            android:background="#00000000"
+                            android:padding="0dp"
+                            android:scaleType="fitXY"
+                            android:src="@drawable/icon_about"
+                            app:tint="@color/darkShade4" />
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="80dp"
+                    android:layout_alignBottom="@+id/constrainst_layout"
+                    android:background="@drawable/shape_gradient" />
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_below="@+id/linearLayout2"
-                    android:layout_marginTop="10dp"
-                    android:nestedScrollingEnabled="false"
-                    android:visibility="visible"
-                    tools:listitem="@layout/card_department_post" />
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:layout_below="@+id/constrainst_layout" >
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/course_offering_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@+id/post_recycler_view"
-                    android:layout_marginTop="10dp"
-                    android:nestedScrollingEnabled="false"
-                    android:visibility="gone"
-                    tools:listitem="@layout/card_button_list" />
+                    <TextView
+                        android:id="@+id/department_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:maxLines="3"
+                        android:ellipsize="end"
+                        android:textColor="@color/white"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/routine_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@+id/course_offering_recycler_view"
-                    android:layout_marginTop="10dp"
-                    android:nestedScrollingEnabled="false"
-                    android:visibility="gone"
-                    tools:listitem="@layout/card_button_list" />
+                    <Button
+                        android:id="@+id/text_posts"
+                        android:layout_width="60dp"
+                        android:layout_height="30dp"
+                        android:padding="5dp"
+                        android:layout_below="@+id/department_name"
+                        android:layout_marginTop="15dp"
+                        android:background="@drawable/shape_circle"
+                        android:backgroundTint="@color/white"
+                        android:text="Posts"
+                        android:textAlignment="center"
+                        android:textAllCaps="false"
+                        android:textColor="@color/darkShade4" />
+
+                    <Button
+                        android:id="@+id/text_course_offering"
+                        android:layout_width="120dp"
+                        android:layout_height="30dp"
+                        android:layout_below="@+id/department_name"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_toEndOf="@+id/text_posts"
+                        android:background="@drawable/shape_circle_outline"
+                        android:padding="5dp"
+                        android:text="Course Offering"
+                        android:textAlignment="center"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white" />
+
+                    <Button
+                        android:id="@+id/text_routine"
+                        android:layout_width="70dp"
+                        android:layout_height="30dp"
+                        android:layout_below="@+id/department_name"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_toEndOf="@+id/text_course_offering"
+                        android:background="@drawable/shape_circle_outline"
+                        android:padding="5dp"
+                        android:text="Routine"
+                        android:textAlignment="center"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white" />
+
+                    <LinearLayout
+                        android:id="@+id/linearLayout2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/text_posts"
+                        android:orientation="horizontal" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/post_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@+id/linearLayout2"
+                        android:layout_marginTop="10dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="visible"
+                        tools:listitem="@layout/card_department_post" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/course_offering_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@+id/post_recycler_view"
+                        android:layout_marginTop="10dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone"
+                        tools:listitem="@layout/card_button_list" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/routine_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@+id/course_offering_recycler_view"
+                        android:layout_marginTop="10dp"
+                        android:nestedScrollingEnabled="false"
+                        android:visibility="gone"
+                        tools:listitem="@layout/card_button_list" />
+
+                </RelativeLayout>
 
             </RelativeLayout>
 
-        </RelativeLayout>
+        </ScrollView>
 
-    </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <Button
         android:id="@+id/btn_add_post"
