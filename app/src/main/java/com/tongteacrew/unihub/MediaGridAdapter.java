@@ -1,7 +1,9 @@
 package com.tongteacrew.unihub;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,6 +100,15 @@ public class MediaGridAdapter extends BaseAdapter {
                         thumbnail.setImageDrawable(placeholder);
                     }
                 });
+
+        thumbnail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.parse(media.get(position)), "image/*");
+                context.startActivity(Intent.createChooser(intent, "Open image with"));
+            }
+        });
 
         return convertView;
     }

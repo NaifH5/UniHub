@@ -1,5 +1,5 @@
 package com.tongteacrew.unihub;
 
-interface FirebaseCallback {
+interface CompletionCallback {
     void onCallback(Object data);
 }

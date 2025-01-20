@@ -14,7 +14,7 @@ public class QueriesActivity extends AppCompatActivity {
 
     ImageButton btnBack;
     RecyclerView queriesRecyclerView;
-    RepliesAdapter queriesAdapter;
+    CommentsAdapter queriesAdapter;
     ArrayList<Replies> queries;
 
     @Override
@@ -23,14 +23,16 @@ public class QueriesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_queries);
 
-        generateTestQueries();
+        //generateTestQueries();
 
         btnBack = findViewById(R.id.btn_back);
 
+        /*
         queriesRecyclerView = findViewById(R.id.queries_recycler_view);
         queriesRecyclerView.setLayoutManager(new LinearLayoutManager(QueriesActivity.this));
         queriesRecyclerView.setHasFixedSize(true);
-        queriesAdapter = new RepliesAdapter(QueriesActivity.this, queries);
+        queriesAdapter = new CommentsAdapter(QueriesActivity.this, queries);
+        */
         queriesRecyclerView.setAdapter(queriesAdapter);
 
         btnBack.setOnClickListener(new View.OnClickListener() {

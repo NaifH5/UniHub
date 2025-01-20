@@ -6,15 +6,12 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -27,8 +24,6 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
@@ -43,7 +38,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -134,7 +128,7 @@ public class AddProfilePictureActivity extends AppCompatActivity {
                     return;
                 }
 
-                compressImage(new FirebaseCallback() {
+                compressImage(new CompletionCallback() {
                     @Override
                     public void onCallback(Object data) {
                         if(data!=null) {
@@ -147,7 +141,7 @@ public class AddProfilePictureActivity extends AppCompatActivity {
         });
     }
 
-    void compressImage(FirebaseCallback callback) {
+    void compressImage(CompletionCallback callback) {
 
         try {
 

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -30,7 +29,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -42,8 +40,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -533,7 +529,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         if(profilePictureURI!=null) {
 
-            compressImage(new FirebaseCallback() {
+            compressImage(new CompletionCallback() {
                 @Override
                 public void onCallback(Object data) {
 
@@ -587,7 +583,7 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
-    void compressImage(FirebaseCallback callback) {
+    void compressImage(CompletionCallback callback) {
 
         try {
 

@@ -34,12 +34,13 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/department_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:text="Department of Computer Science &amp; Engineering"
+            android:text=""
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textAlignment="center"
@@ -74,22 +75,23 @@
                 android:src="@drawable/illustration_1" />
 
             <RelativeLayout
+                android:id="@+id/layout_edit"
                 android:layout_width="52dp"
                 android:layout_height="52dp"
-                android:background="@drawable/shape_circle"
-                android:backgroundTint="@color/darkShade4"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="10dp"
-                android:gravity="center" >
+                android:background="@drawable/shape_circle"
+                android:backgroundTint="@color/darkShade4"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:id="@+id/linearLayout"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="@drawable/shape_circle"
-                    android:backgroundTint="@color/white" >
+                    android:backgroundTint="@color/white">
 
                     <ImageButton
                         android:id="@+id/btn_edit"
@@ -106,6 +108,41 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:id="@+id/layout_done"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/shape_circle"
+                android:backgroundTint="@color/darkShade4"
+                android:gravity="center"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/layout_edit"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/linearLayout2"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/white">
+
+                    <ImageButton
+                        android:id="@+id/btn_done"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:background="#00000000"
+                        android:padding="10dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/icon_tick"
+                        app:tint="@color/darkShade4" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </RelativeLayout>
@@ -116,20 +153,29 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/editable_items"
         android:layout_marginTop="20dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="20dp"
         android:text="Members"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold" />
 
+    <View
+        android:id="@+id/divider_1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/members"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/darkShade2" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/users_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_below="@id/members"
+        android:layout_below="@id/divider_1"
         android:nestedScrollingEnabled="false"
         tools:listitem="@layout/card_department_members" />
 

@@ -74,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
                         userData.put("id", getIntent().getExtras().getString("id"));
                         userData.put("deviceToken", getIntent().getExtras().getString("deviceToken"));
 
-                        System.out.println(userData);
-
                         intent = new Intent(MainActivity.this, ChatActivity.class);
                         intent.putExtra("userData", (Serializable) userData);
                         startActivity(intent);
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
             }
-        }, 2000);
+        }, 1000);
     }
 
     void initializeSDK() {

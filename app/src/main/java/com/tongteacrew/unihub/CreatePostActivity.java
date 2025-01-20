@@ -35,9 +35,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +45,7 @@ import java.util.Objects;
 public class CreatePostActivity extends AppCompatActivity {
 
     DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
-    RelativeLayout postLayout;
+    RelativeLayout postLayout, attachmentLayout;
     ProgressBar progressBar;
     ImageButton addImage, btnBack;
     Button btnPost;
@@ -57,7 +55,7 @@ public class CreatePostActivity extends AppCompatActivity {
     RecyclerView filesRecyclerView;
     FilesAdapter filesAdapter;
     ArrayList<Uri> files = new ArrayList<>();
-    String accountType, myId;
+    String accountType, myId, postId, postText;
     long departmentId;
 
     @Override
@@ -67,9 +65,20 @@ public class CreatePostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_post);
 
         // To fetch data from previous activity
-        accountType = (String) getIntent().getSerializableExtra("accountType");
-        departmentId = (long) getIntent().getSerializableExtra("departmentId");
-        myId = (String) getIntent().getSerializableExtra("myId");
+        accountType = getIntent().getSerializableExtra("accountType") != null
+                ? (String) getIntent().getSerializableExtra("accountType")
+                : "student";
+
+        departmentId = getIntent().getSerializableExtra("departmentId") != null
+                ? (Long) getIntent().getSerializableExtra("departmentId")
+                : 1L;
+
+        myId = getIntent().getSerializableExtra("myId") != null
+                ? (String) getIntent().getSerializableExtra("myId")
+                : "";
+
+        postId = (String) getIntent().getSerializableExtra("postId");
+        postText = (String) getIntent().getSerializableExtra("text");
 
         postLayout = findViewById(R.id.relativeLayout4);
         progressBar = findViewById(R.id.progress_bar);
@@ -79,6 +88,7 @@ public class CreatePostActivity extends AppCompatActivity {
         btnPost = findViewById(R.id.btn_post);
         selectedMedia = findViewById(R.id.selected_media);
         filesRecyclerView = findViewById(R.id.media_recycler_view);
+        attachmentLayout = findViewById(R.id.relativeLayout5);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         filesRecyclerView.setLayoutManager(layoutManager);
@@ -133,21 +143,49 @@ public class CreatePostActivity extends AppCompatActivity {
                 postLayout.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
                 String msg = String.valueOf(text.getText());
-                String postId = getPostId();
 
-                updateDepartmentPosts(postId, new FirebaseCallback() {
-                    @Override
-                    public void onCallback(Object data) {
-                        if((Boolean) data) {
-                            createPost(postId, msg);
+                if(postId==null) {
+
+                    String postId = getPostId();
+
+                    updateDepartmentPosts(postId, new CompletionCallback() {
+                        @Override
+                        public void onCallback(Object data) {
+                            if((Boolean) data) {
+                                createPost(postId, msg);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                else {
+                    postLayout.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
+                    editPost(String.valueOf(text.getText()));
+                }
+            }
+        });
+
+        if(postText!=null) {
+            text.setText(postText);
+            attachmentLayout.setVisibility(View.GONE);
+        }
+    }
+
+    void editPost(String txt) {
+
+        DatabaseReference updatePostReference = rootReference.child("posts").child(String.valueOf(postId)).child("text");
+
+        updatePostReference.setValue(txt).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                postLayout.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
+                finish();
             }
         });
     }
 
-    void updateDepartmentPosts(String postId, FirebaseCallback callback) {
+    void updateDepartmentPosts(String postId, CompletionCallback callback) {
 
         DatabaseReference updatePostReference = rootReference.child("departmentPosts").child(String.valueOf(departmentId));
         updatePostReference.keepSynced(true);
@@ -184,7 +222,7 @@ public class CreatePostActivity extends AppCompatActivity {
             post.put("approval", true);
         }
 
-        setTimeStamp(new FirebaseCallback() {
+        setTimeStamp(new CompletionCallback() {
             @Override
             public void onCallback(Object data) {
 
@@ -206,7 +244,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                             final int fileNumber = i+1;
 
-                            compressImage(files.get(i), new FirebaseCallback() {
+                            compressImage(files.get(i), new CompletionCallback() {
                                 @Override
                                 public void onCallback(Object data) {
                                     if(data!=null) {
@@ -221,7 +259,7 @@ public class CreatePostActivity extends AppCompatActivity {
         });
     }
 
-    void compressImage(Uri uri, FirebaseCallback callback) {
+    void compressImage(Uri uri, CompletionCallback callback) {
 
         try {
 
@@ -302,7 +340,7 @@ public class CreatePostActivity extends AppCompatActivity {
         });
     }
 
-    void setTimeStamp(FirebaseCallback callback) {
+    void setTimeStamp(CompletionCallback callback) {
 
         DatabaseReference timeReference = rootReference.child("timeStamps").child(myId);
         timeReference.keepSynced(true);
@@ -315,7 +353,7 @@ public class CreatePostActivity extends AppCompatActivity {
         });
     }
 
-    void getTimeStamp(FirebaseCallback callback) {
+    void getTimeStamp(CompletionCallback callback) {
 
         DatabaseReference timeReference = rootReference.child("timeStamps").child(myId);
         timeReference.keepSynced(true);

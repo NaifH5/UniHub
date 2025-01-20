@@ -51,7 +51,7 @@
                 android:layout_toEndOf="@+id/relativeLayout3"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="Naif Haider Chowdhury"
+                android:text="Name"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -118,7 +118,7 @@
             android:layout_below="@+id/relativeLayout2"
             android:layout_marginTop="5dp"
             android:justificationMode="inter_word"
-            android:text="Hello."
+            android:text="Text"
             android:textColor="@color/white"
             android:textSize="12sp" />
 
@@ -238,6 +238,7 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/pending_post_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"

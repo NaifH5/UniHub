@@ -48,8 +48,8 @@ public class HomeActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     TextView fragmentName;
     Button btnProfile, btnLogout;
-    ImageView btnProfilePicture;
-    CircularProgressIndicator progressIndicator;
+    ImageView btnProfilePicture, btnDev1, btnDev2, btnDev3;
+    CircularProgressIndicator progressIndicator, circularProgressDev1, circularProgressDev2, circularProgressDev3;
     String url="", accountType="";
 
     @Override
@@ -67,6 +67,12 @@ public class HomeActivity extends AppCompatActivity {
         fragmentName = findViewById(R.id.fragment_name);
         btnProfilePicture = findViewById(R.id.btn_profile_picture);
         progressIndicator = findViewById(R.id.circular_progress_indicator);
+        circularProgressDev1 = findViewById(R.id.circular_progress_dev_1);
+        circularProgressDev2 = findViewById(R.id.circular_progress_dev_2);
+        circularProgressDev3 = findViewById(R.id.circular_progress_dev_3);
+        btnDev1 = findViewById(R.id.btn_dev_1);
+        btnDev2 = findViewById(R.id.btn_dev_2);
+        btnDev3 = findViewById(R.id.btn_dev_3);
 
         ViewPagerAdapter adapter = new ViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
@@ -151,7 +157,6 @@ public class HomeActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
                 intent.putExtra("id", user.getUid());
-                intent.putExtra("account_type", accountType);
                 HomeActivity.this.startActivity(intent);
             }
         });
@@ -165,8 +170,76 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        btnDev1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                intent.putExtra("id", "KJ5OxGwscxPViECVerFxHYPlyg53");
+                HomeActivity.this.startActivity(intent);
+            }
+        });
+
+        btnDev2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                intent.putExtra("id", "PosNPnWV5cdyz3CxF2JDOr3UABk2");
+                HomeActivity.this.startActivity(intent);
+            }
+        });
+
         checkAccountType();
         setOnlineStatus();
+        setDevProfilePic();
+    }
+
+    void setDevProfilePic() {
+
+        String[] ids = {"KJ5OxGwscxPViECVerFxHYPlyg53", "PosNPnWV5cdyz3CxF2JDOr3UABk2"};
+        ImageView[] btns = {btnDev1, btnDev2};
+
+        for(int i=0; i<2; i++) {
+
+            final int index = i;
+            DatabaseReference imageReference = rootReference.child("student").child(ids[index]).child("profilePicture");
+            imageReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if(task.isSuccessful() && task.getResult().getValue()!=null) {
+                        setImage(String.valueOf(task.getResult().getValue()), btns[index]);
+                    }
+                }
+            });
+        }
+    }
+
+    void setImage(String url, ImageView btn) {
+
+        circularProgressDev1.setVisibility(View.VISIBLE);
+
+        Glide.with(HomeActivity.this)
+                .load(url)
+                .error(R.drawable.icon_photo)
+                .placeholder(R.drawable.icon_photo)
+                .into(new CustomTarget<Drawable>(){
+
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        circularProgressDev1.setVisibility(View.GONE);
+                        Glide.with(HomeActivity.this).load(resource).circleCrop().into(btn);
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        circularProgressDev1.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                        circularProgressDev1.setVisibility(View.GONE);
+                        btn.setImageDrawable(placeholder);
+                    }
+                });
     }
 
     void setOnlineStatus() {
@@ -290,7 +363,7 @@ public class HomeActivity extends AppCompatActivity {
 
             makeOffline();
 
-            removeDeviceRegistrationToken(new FirebaseCallback() {
+            removeDeviceRegistrationToken(new CompletionCallback() {
                 @Override
                 public void onCallback(Object data) {
                     if((boolean)data) {
@@ -312,7 +385,7 @@ public class HomeActivity extends AppCompatActivity {
         onlineStatusReference.setValue(offline);
     }
 
-    void removeDeviceRegistrationToken(FirebaseCallback callback) {
+    void removeDeviceRegistrationToken(CompletionCallback callback) {
 
         DatabaseReference tokenReference = rootReference.child(accountType).child(user.getUid()).child("deviceToken");
         tokenReference.keepSynced(true);

@@ -17,8 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -36,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -44,12 +47,13 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
     FirebaseUser user = mAuth.getCurrentUser();
     SwipeRefreshLayout swipeRefreshLayout;
     TextView departmentName;
-    RecyclerView postRecyclerView, courseOfferingRecyclerView, routineRecyclerView;
+    RecyclerView postRecyclerView, routineRecyclerView;
     PostAdapter postAdapter;
     ButtonListAdapter buttonListAdapter;
     ImageButton btnAbout;
-    Button btnPost, btnPosts, btnCourseOffering, btnRoutine;
-    ArrayList<String> courseOffering, routine;
+    ImageView departmentImage;
+    Button btnPost, btnPosts, btnRoutine;
+    ArrayList<String> routine = new ArrayList<>();
     ArrayList<Map<String, Object>> posts = new ArrayList<>();
     String myAccountType="student";
     long departmentId=1;
@@ -64,34 +68,35 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         postRecyclerView = view.findViewById(R.id.post_recycler_view);
         departmentName = view.findViewById(R.id.department_name);
-        courseOfferingRecyclerView = view.findViewById(R.id.course_offering_recycler_view);
         routineRecyclerView = view.findViewById(R.id.routine_recycler_view);
         btnAbout = view.findViewById(R.id.btn_about);
         btnPost = view.findViewById(R.id.btn_add_post);
         btnPosts = view.findViewById(R.id.text_posts);
-        btnCourseOffering = view.findViewById(R.id.text_course_offering);
         btnRoutine = view.findViewById(R.id.text_routine);
+        departmentImage = view.findViewById(R.id.department_image);
 
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        courseOfferingRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        buttonListAdapter = new ButtonListAdapter(getContext(), courseOffering);
-        courseOfferingRecyclerView.setAdapter(buttonListAdapter);
 
         routineRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         buttonListAdapter = new ButtonListAdapter(getContext(), routine);
         routineRecyclerView.setAdapter(buttonListAdapter);
 
-        getMyAccountType();
-
-        getDepartmentId(new FirebaseCallback() {
+        getMyAccountType(new CompletionCallback() {
             @Override
             public void onCallback(Object data) {
                 if(data!=null) {
-                    departmentId = (long) data;
-                    setDepartmentName();
-                    getPostIds();
-                    swipeRefreshLayout.setOnRefreshListener(DepartmentFragment.this);
+                    getDepartmentId(new CompletionCallback() {
+                        @Override
+                        public void onCallback(Object data) {
+                            if(data!=null) {
+                                departmentId = (long) data;
+                                setDepartmentName();
+                                getDepartmentImage();
+                                getPostIds();
+                                swipeRefreshLayout.setOnRefreshListener(DepartmentFragment.this);
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -100,6 +105,7 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), DepartmentInformationActivity.class);
+                intent.putExtra("departmentId", departmentId);
                 getContext().startActivity(intent);
             }
         });
@@ -123,10 +129,6 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                             intent.putExtra("myId", user.getUid());
                             requireContext().startActivity(intent);
                         }
-                        else if(item.getItemId()==R.id.course_offering) {
-                            Intent intent = new Intent(getContext(), AddCourseOfferingActivity.class);
-                            requireContext().startActivity(intent);
-                        }
                         else if(item.getItemId()==R.id.routine) {
                             Intent intent = new Intent(getContext(), AddRoutineActivity.class);
                             requireContext().startActivity(intent);
@@ -146,38 +148,11 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                 btnPosts.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.white));
                 btnPosts.setTextColor(ContextCompat.getColor(requireContext(), R.color.darkShade4));
 
-                btnCourseOffering.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.shape_circle_outline));
-                btnCourseOffering.setBackgroundTintList(null);
-                btnCourseOffering.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-
                 btnRoutine.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.shape_circle_outline));
                 btnRoutine.setBackgroundTintList(null);
                 btnRoutine.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
 
                 postRecyclerView.setVisibility(View.VISIBLE);
-                courseOfferingRecyclerView.setVisibility(View.GONE);
-                routineRecyclerView.setVisibility(View.GONE);
-            }
-        });
-
-        btnCourseOffering.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                btnCourseOffering.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.shape_circle));
-                btnCourseOffering.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.white));
-                btnCourseOffering.setTextColor(ContextCompat.getColor(requireContext(), R.color.darkShade4));
-
-                btnPosts.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.shape_circle_outline));
-                btnPosts.setBackgroundTintList(null);
-                btnPosts.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-
-                btnRoutine.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.shape_circle_outline));
-                btnRoutine.setBackgroundTintList(null);
-                btnRoutine.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-
-                courseOfferingRecyclerView.setVisibility(View.VISIBLE);
-                postRecyclerView.setVisibility(View.GONE);
                 routineRecyclerView.setVisibility(View.GONE);
             }
         });
@@ -194,13 +169,8 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                 btnPosts.setBackgroundTintList(null);
                 btnPosts.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
 
-                btnCourseOffering.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.shape_circle_outline));
-                btnCourseOffering.setBackgroundTintList(null);
-                btnCourseOffering.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
-
                 routineRecyclerView.setVisibility(View.VISIBLE);
                 postRecyclerView.setVisibility(View.GONE);
-                courseOfferingRecyclerView.setVisibility(View.GONE);
             }
         });
 
@@ -215,6 +185,31 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
 
         String name = "Department of "+departments[(int) departmentId];
         departmentName.setText(name);
+    }
+
+    void getDepartmentImage() {
+
+        DatabaseReference imageReference = rootReference.child("departmentImage").child(String.valueOf(departmentId)).child("image");
+        imageReference.keepSynced(true);
+
+        imageReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                if(task.isSuccessful() && task.getResult().getValue()!=null) {
+                    setImage(String.valueOf(task.getResult().getValue()));
+                }
+            }
+        });
+    }
+
+    void setImage(String url) {
+
+        Glide.with(getContext())
+                .load(url)
+                .error(R.drawable.illustration_1)
+                .placeholder(R.drawable.illustration_1)
+                .into(departmentImage);
     }
 
     void getPostIds() {
@@ -238,12 +233,16 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
 
                         Map<String, Object> post = new HashMap<>();
                         post.put("postId", s.getKey());
+                        post.put("departmentId", departmentId);
                         posts.add(post);
 
                         if(posts.size()==snapshot.getChildrenCount()) {
                             getPostDetails(0);
                         }
                     }
+                }
+                else {
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 
@@ -269,18 +268,36 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                     Map<String, Object> postDetails = (Map<String, Object>) task.getResult().getValue();
                     String time = getTime((Long)postDetails.get("time"))+" "+getDate((Long)postDetails.get("time"));
 
-                    posts.get(index).put("time", time);
-                    posts.get(index).put("approval", postDetails.get("approval"));
-                    posts.get(index).put("accountType", postDetails.get("accountType"));
-                    posts.get(index).put("text", postDetails.get("text"));
-                    posts.get(index).put("posterId", postDetails.get("posterId"));
+                    if(!((Boolean) postDetails.get("approval")) && !String.valueOf(postDetails.get("posterId")).equals(user.getUid()) && !Objects.equals(myAccountType, "facultyMember")) {
 
-                    if(index<posts.size()-1) {
-                        getPostDetails(index+1);
+                        posts.remove(index);
+
+                        if(index<posts.size()) {
+                            getPostDetails(index+1);
+                        }
+                        else {
+                            getPosterDetails(0);
+                        }
                     }
                     else {
-                        getPosterDetails(0);
+
+                        posts.get(index).put("time", time);
+                        posts.get(index).put("approval", postDetails.get("approval"));
+                        posts.get(index).put("accountType", postDetails.get("accountType"));
+                        posts.get(index).put("text", postDetails.get("text"));
+                        posts.get(index).put("posterId", postDetails.get("posterId"));
+
+
+                        if(index+1<posts.size()) {
+                            getPostDetails(index+1);
+                        }
+                        else {
+                            getPosterDetails(0);
+                        }
                     }
+                }
+                else {
+                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -316,6 +333,9 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                         getCommentCount(0);
                     }
                 }
+                else {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -341,7 +361,12 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                     getCommentCount(index+1);
                 }
                 else {
-                    postAdapter = new PostAdapter(getContext(), posts);
+                    postAdapter = new PostAdapter(getContext(), myAccountType, posts, new CompletionCallback() {
+                        @Override
+                        public void onCallback(Object data) {
+                            onRefresh();
+                        }
+                    });
                     postRecyclerView.setAdapter(postAdapter);
                     swipeRefreshLayout.setRefreshing(false);
                 }
@@ -355,7 +380,7 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
         });
     }
 
-    void getMyAccountType() {
+    void getMyAccountType(CompletionCallback callback) {
 
         DatabaseReference accountTypeReference = rootReference.child("student").child(user.getUid());
         accountTypeReference.keepSynced(true);
@@ -370,12 +395,13 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                     else {
                         myAccountType = "facultyMember";
                     }
+                    callback.onCallback(true);
                 }
             }
         });
     }
 
-    void getDepartmentId(FirebaseCallback callback) {
+    void getDepartmentId(CompletionCallback callback) {
 
         DatabaseReference depIdReference = rootReference.child("student").child(user.getUid()).child("departmentId");
         depIdReference.keepSynced(true);
@@ -383,11 +409,30 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
         depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful()) {
+                if(task.isSuccessful() && task.getResult().getValue()!=null) {
                     callback.onCallback(task.getResult().getValue());
                 }
                 else {
-                    callback.onCallback(null);
+
+                    DatabaseReference depIdReference = rootReference.child("facultyMember").child(user.getUid()).child("departmentId");
+                    depIdReference.keepSynced(true);
+
+                    depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if(task.isSuccessful() && task.getResult().getValue()!=null) {
+                                callback.onCallback(task.getResult().getValue());
+                            }
+                            else {
+                                callback.onCallback(null);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            callback.onCallback(null);
+                        }
+                    });
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -415,5 +460,6 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
     @Override
     public void onRefresh() {
         getPostIds();
+        getDepartmentImage();
     }
 }

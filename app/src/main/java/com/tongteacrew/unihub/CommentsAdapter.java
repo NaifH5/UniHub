@@ -6,9 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,40 +21,32 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class DepartmentMembersAdapter extends RecyclerView.Adapter<DepartmentMembersAdapter.DepartmentMembersViewHolder> {
+public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.RepliesViewHolder> {
 
     Context context;
-    ArrayList<Map<String, Object>> members;
+    ArrayList<Map<String, Object>> comments;
 
-    public DepartmentMembersAdapter(Context context, ArrayList<Map<String, Object>> members) {
+    public CommentsAdapter(Context context, ArrayList<Map<String, Object>> comments) {
         this.context = context;
-        this.members = members;
+        this.comments = comments;
     }
 
     @Override
-    public DepartmentMembersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new DepartmentMembersViewHolder(LayoutInflater.from(context).inflate(R.layout.card_department_members, parent, false));
+    public RepliesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new RepliesViewHolder(LayoutInflater.from(context).inflate(R.layout.card_replies, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DepartmentMembersViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull CommentsAdapter.RepliesViewHolder holder, int position) {
 
         int index = holder.getAdapterPosition();
-        holder.userName.setText(String.valueOf(members.get(index).get("fullName")));
 
-        if(String.valueOf(members.get(index).get("accountType")).equals("student")) {
-            holder.userPosition.setText("Student");
-        }
-        else {
-            holder.userPosition.setText("Faculty Member");
-        }
-
-        if(members.get(index).containsKey("profilePicture")) {
+        if(comments.get(index).containsKey("profilePicture")) {
 
             holder.progressIndicator.setVisibility(View.VISIBLE);
 
             Glide.with(context)
-                    .load(String.valueOf(members.get(index).get("profilePicture")))
+                    .load(comments.get(index).get("profilePicture"))
                     .error(R.drawable.icon_photo)
                     .placeholder(R.drawable.icon_photo)
                     .into(new CustomTarget<Drawable>(){
@@ -64,7 +54,7 @@ public class DepartmentMembersAdapter extends RecyclerView.Adapter<DepartmentMem
                         @Override
                         public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
                             holder.progressIndicator.setVisibility(View.GONE);
-                            Glide.with(context).load(resource).circleCrop().into(holder.profilePicture);
+                            Glide.with(context).load(resource).circleCrop().into(holder.replierProfilePicture);
                         }
 
                         @Override
@@ -75,25 +65,29 @@ public class DepartmentMembersAdapter extends RecyclerView.Adapter<DepartmentMem
                         @Override
                         public void onLoadCleared(@Nullable Drawable placeholder) {
                             holder.progressIndicator.setVisibility(View.GONE);
-                            holder.profilePicture.setImageDrawable(placeholder);
+                            holder.replierProfilePicture.setImageDrawable(placeholder);
                         }
                     });
         }
 
-        holder.profilePicture.setOnClickListener(new View.OnClickListener() {
+
+        holder.replierName.setText(String.valueOf(comments.get(index).get("posterName")));
+        holder.reply.setText(String.valueOf(comments.get(index).get("text")));
+
+        holder.replierProfilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, ProfileActivity.class);
-                intent.putExtra("id", String.valueOf(members.get(index).get("id")));
+                intent.putExtra("id", String.valueOf(comments.get(index).get("posterId")));
                 context.startActivity(intent);
             }
         });
 
-        holder.userName.setOnClickListener(new View.OnClickListener() {
+        holder.replierName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, ProfileActivity.class);
-                intent.putExtra("id", String.valueOf(members.get(index).get("id")));
+                intent.putExtra("id", String.valueOf(comments.get(index).get("posterId")));
                 context.startActivity(intent);
             }
         });
@@ -101,20 +95,20 @@ public class DepartmentMembersAdapter extends RecyclerView.Adapter<DepartmentMem
 
     @Override
     public int getItemCount() {
-        return members.size();
+        return comments.size();
     }
 
-    public static class DepartmentMembersViewHolder extends RecyclerView.ViewHolder {
+    public static class RepliesViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView profilePicture;
-        TextView userName, userPosition;
+        ImageView replierProfilePicture;
+        TextView replierName, reply;
         CircularProgressIndicator progressIndicator;
 
-        public DepartmentMembersViewHolder(@NonNull View itemView) {
+        public RepliesViewHolder(@NonNull View itemView) {
             super(itemView);
-            profilePicture = itemView.findViewById(R.id.user_profile_picture);
-            userName = itemView.findViewById(R.id.user_name);
-            userPosition = itemView.findViewById(R.id.user_position);
+            replierProfilePicture = itemView.findViewById(R.id.replier_profile_picture);
+            replierName = itemView.findViewById(R.id.replier_name);
+            reply = itemView.findViewById(R.id.reply);
             progressIndicator = itemView.findViewById(R.id.circular_progress_indicator);
         }
     }

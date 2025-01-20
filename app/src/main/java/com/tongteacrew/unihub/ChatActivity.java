@@ -111,7 +111,6 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChatActivity.this, ProfileActivity.class);
                 intent.putExtra("id", String.valueOf(userData.get("id")));
-                intent.putExtra("account_type", String.valueOf(userData.get("accountType")));
                 ChatActivity.this.startActivity(intent);
             }
         });
@@ -121,7 +120,6 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChatActivity.this, ProfileActivity.class);
                 intent.putExtra("id", String.valueOf(userData.get("id")));
-                intent.putExtra("account_type", String.valueOf(userData.get("accountType")));
                 ChatActivity.this.startActivity(intent);
             }
         });

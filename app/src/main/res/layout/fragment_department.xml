@@ -108,28 +108,13 @@
                         android:textColor="@color/darkShade4" />
 
                     <Button
-                        android:id="@+id/text_course_offering"
-                        android:layout_width="120dp"
-                        android:layout_height="30dp"
-                        android:layout_below="@+id/department_name"
-                        android:layout_marginStart="5dp"
-                        android:layout_marginTop="15dp"
-                        android:layout_toEndOf="@+id/text_posts"
-                        android:background="@drawable/shape_circle_outline"
-                        android:padding="5dp"
-                        android:text="Course Offering"
-                        android:textAlignment="center"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white" />
-
-                    <Button
                         android:id="@+id/text_routine"
                         android:layout_width="70dp"
                         android:layout_height="30dp"
                         android:layout_below="@+id/department_name"
                         android:layout_marginStart="5dp"
                         android:layout_marginTop="15dp"
-                        android:layout_toEndOf="@+id/text_course_offering"
+                        android:layout_toEndOf="@+id/text_posts"
                         android:background="@drawable/shape_circle_outline"
                         android:padding="5dp"
                         android:text="Routine"

@@ -4,9 +4,6 @@
         android:id="@+id/create_post"
         android:title="Create Post" />
     <item
-        android:id="@+id/course_offering"
-        android:title="Add Course Offering" />
-    <item
         android:id="@+id/routine"
         android:title="Create Routine" />
 </menu>

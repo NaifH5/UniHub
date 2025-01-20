@@ -3,16 +3,13 @@ package com.tongteacrew.unihub;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -24,6 +21,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,7 +34,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +52,7 @@ public class ProfileActivity extends AppCompatActivity {
     RecyclerView clubRecyclerView;
     ClubAdapter clubAdapter;
     ArrayList<String[]> clubs = new ArrayList<>();
-    String accountType, profileId;
+    String accountType="student", profileId;
     TextView fullName, department, batch, section, id, acronym, note, designation;
     Map<String, Object> data, designationMap;
     Map<String, Map<String, Object>> clubDetails = new HashMap<>();
@@ -72,7 +69,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         // To fetch data from previous activity
         profileId = (String) getIntent().getSerializableExtra("id");
-        accountType = (String) getIntent().getSerializableExtra("account_type");
 
         btnBack = findViewById(R.id.btn_back);
         btnEdit = findViewById(R.id.btn_edit);
@@ -120,7 +116,44 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        getProfileDetails();
+        getAccountType(new CompletionCallback() {
+            @Override
+            public void onCallback(Object data) {
+                if(data!=null) {
+                    accountType = (String) data;
+                    getProfileDetails();
+                }
+            }
+        });
+    }
+
+    void getAccountType(CompletionCallback callback) {
+
+        DatabaseReference accountTypeReference = rootReference.child("student").child(profileId);
+        accountTypeReference.keepSynced(true);
+
+        accountTypeReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                if(task.isSuccessful()) {
+                    if(task.getResult().getValue()!=null) {
+                        callback.onCallback("student");
+                    }
+                    else if(task.isSuccessful()) {
+                        callback.onCallback("facultyMember");
+                    }
+                }
+                else {
+                    callback.onCallback(null);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onCallback(null);
+            }
+        });
     }
 
     void getProfileDetails() {
