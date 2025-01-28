@@ -67,7 +67,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:background="@null"
-                android:hint="Session"
+                android:hint="Session (eg. Fall-2024)"
                 android:inputType="textCapCharacters"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
@@ -75,7 +75,7 @@
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/day_layout"
+            android:id="@+id/url_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/session_layout"
@@ -85,7 +85,7 @@
             android:background="@drawable/shape_circle_outline" >
 
             <EditText
-                android:id="@+id/day"
+                android:id="@+id/url"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_alignParentStart="true"
@@ -93,172 +93,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:background="@null"
-                android:hint="Day"
-                android:inputType="textCapCharacters"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/batch_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/day_layout"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/shape_circle_outline" >
-
-            <EditText
-                android:id="@+id/batch"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="@null"
-                android:hint="Batch"
-                android:inputType="textCapCharacters"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/linearLayout9"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/batch_layout"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal"
-            android:weightSum="2">
-
-            <RelativeLayout
-                android:id="@+id/start_time_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="10dp"
-                android:layout_weight="1"
-                android:background="@drawable/shape_circle_outline">
-
-                <EditText
-                    android:id="@+id/start_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:background="@null"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:hint="Start time"
-                    android:inputType="none"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/end_time_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="20dp"
-                android:layout_weight="1"
-                android:background="@drawable/shape_circle_outline">
-
-                <EditText
-                    android:id="@+id/end_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:background="@null"
-                    android:cursorVisible="false"
-                    android:focusable="false"
-                    android:hint="End time"
-                    android:inputType="none"
-                    android:textColor="@color/white"
-                    android:textSize="14sp" />
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
-        <RelativeLayout
-            android:id="@+id/course_code_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/linearLayout9"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/shape_circle_outline">
-
-            <EditText
-                android:id="@+id/course_code"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="@null"
-                android:hint="Course Code"
-                android:inputType="textCapCharacters"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/acronym_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/course_code_layout"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/shape_circle_outline">
-
-            <EditText
-                android:id="@+id/acronym"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="@null"
-                android:hint="Acronym"
-                android:inputType="textCapCharacters"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/room_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/acronym_layout"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="20dp"
-            android:background="@drawable/shape_circle_outline">
-
-            <EditText
-                android:id="@+id/room"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:background="@null"
-                android:hint="Room"
+                android:hint="Google Steets URL"
                 android:inputType="textCapCharacters"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
@@ -269,7 +104,7 @@
             android:id="@+id/btn_add"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/room_layout"
+            android:layout_below="@+id/url_layout"
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
@@ -277,18 +112,17 @@
             android:backgroundTint="@color/white"
             android:text="Add"
             android:textAllCaps="false"
+            android:visibility="visible"
             android:textColor="@color/darkShade4" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/routine_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:layout_below="@+id/btn_add"
-            android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="20dp"
-            android:nestedScrollingEnabled="false"
-            tools:listitem="@layout/card_routine" />
+            android:visibility="gone" />
 
     </RelativeLayout>
 

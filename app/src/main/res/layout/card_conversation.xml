@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="User Name"
+                android:text=""
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -91,7 +91,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:text="03:00 pm 28 Nov 2024"
+                android:text=""
                 android:textColor="@color/darkShade1"
                 android:textSize="12sp" />
 

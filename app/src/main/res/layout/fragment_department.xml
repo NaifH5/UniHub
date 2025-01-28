@@ -147,7 +147,7 @@
                         android:layout_marginTop="10dp"
                         android:nestedScrollingEnabled="false"
                         android:visibility="gone"
-                        tools:listitem="@layout/card_button_list" />
+                        tools:listitem="@layout/card_routine" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/routine_recycler_view"

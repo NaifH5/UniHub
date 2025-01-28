@@ -1,5 +1,6 @@
 package com.tongteacrew.unihub;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -8,14 +9,32 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AllCoursesActivity extends AppCompatActivity {
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
+    FirebaseUser user = mAuth.getCurrentUser();
     RecyclerView courseGroupRecyclerView;
     AllCoursesGroupAdapter allCourseGroupAdapter;
     ImageButton btnBack;
-    ArrayList<ArrayList<String>> courseGroups;
+    ArrayList<Map<String, String>> courseGroups = new ArrayList<>();
+    long departmentId=1;
+    String selectedSession=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,14 +42,11 @@ public class AllCoursesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_courses);
 
-        generateTestCourseGroups();
-
         btnBack = findViewById(R.id.btn_back);
         courseGroupRecyclerView = findViewById(R.id.course_group_recycler_view);
 
         courseGroupRecyclerView.setLayoutManager(new LinearLayoutManager(AllCoursesActivity.this));
-        courseGroupRecyclerView.setHasFixedSize(true);
-        allCourseGroupAdapter = new AllCoursesGroupAdapter(AllCoursesActivity.this, courseGroups);
+        allCourseGroupAdapter = new AllCoursesGroupAdapter(AllCoursesActivity.this, courseGroups, selectedSession);
         courseGroupRecyclerView.setAdapter(allCourseGroupAdapter);
 
         btnBack.setOnClickListener(new View.OnClickListener() {
@@ -39,73 +55,163 @@ public class AllCoursesActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        getDepartmentId(new CompletionCallback() {
+            @Override
+            public void onCallback(Object data) {
+                if(data!=null) {
+                    departmentId = (long) data;
+                    getSelectedSession(new CompletionCallback() {
+                        @Override
+                        public void onCallback(Object data) {
+                            if(data!=null) {
+                                getAllCourses();
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 
-    void generateTestCourseGroups() {
+    void getAllCourses() {
 
-        courseGroups = new ArrayList<>();
+        DatabaseReference coursesReference = rootReference.child("courses").child(String.valueOf(departmentId)).child(selectedSession);
+        coursesReference.keepSynced(true);
 
-        ArrayList arrayList = new ArrayList();
-        arrayList.add("CSE-3213");
-        arrayList.add("Digital Signal Processing");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+        coursesReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-3214");
-        arrayList.add("Digital Signal Processing Sessional");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+                if(snapshot.exists()) {
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-3227");
-        arrayList.add("Theory of Computation");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+                    if(courseGroups.size()>0) {
+                        courseGroups.clear();
+                    }
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-3315");
-        arrayList.add("Compiler Design and Construction");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+                    for(DataSnapshot courseSnapshot : snapshot.getChildren()) {
+                        for(DataSnapshot batchSnapshot : courseSnapshot.getChildren()) {
+                            for(DataSnapshot keyValue : batchSnapshot.getChildren()) {
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-3316");
-        arrayList.add("Compiler Design and Construction Sessional");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+                                Map<String, String> courseData = new HashMap<>();
+                                courseData.put("courseCode", courseSnapshot.getKey());
+                                courseData.put("batch", batchSnapshot.getKey());
+                                courseData.put("section", keyValue.getKey());
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-3319");
-        arrayList.add("Software Engineering and Information System Design");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+                                if(!String.valueOf(keyValue.getValue()).equals("")) {
+                                    courseData.put("courseName", keyValue.getKey());
+                                }
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-3320");
-        arrayList.add("Software Engineering and Information System Design Sessional");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+                                isGroupMember(courseSnapshot.getKey(), batchSnapshot.getKey(), keyValue.getKey(), new CompletionCallback() {
+                                    @Override
+                                    public void onCallback(Object data) {
+                                        if(data!=null) {
+                                            boolean isMember = (boolean) data;
+                                            courseData.put("isMember", String.valueOf(isMember));
+                                            courseGroups.add(courseData);
+                                            allCourseGroupAdapter = new AllCoursesGroupAdapter(AllCoursesActivity.this, courseGroups, selectedSession);
+                                            courseGroupRecyclerView.setAdapter(allCourseGroupAdapter);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-4211");
-        arrayList.add("Web Technologies");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
 
-        arrayList = new ArrayList();
-        arrayList.add("CSE-4212");
-        arrayList.add("Web Technologies Sessional");
-        arrayList.add("Batch 58");
-        arrayList.add("Section A");
-        courseGroups.add(arrayList);
+    void getDepartmentId(CompletionCallback callback) {
+
+        DatabaseReference depIdReference = rootReference.child("student").child(user.getUid()).child("departmentId");
+        depIdReference.keepSynced(true);
+
+        depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful() && task.getResult().getValue()!=null) {
+                    callback.onCallback(task.getResult().getValue());
+                }
+                else {
+
+                    DatabaseReference depIdReference = rootReference.child("facultyMember").child(user.getUid()).child("departmentId");
+                    depIdReference.keepSynced(true);
+
+                    depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if(task.isSuccessful() && task.getResult().getValue()!=null) {
+                                callback.onCallback(task.getResult().getValue());
+                            }
+                            else {
+                                callback.onCallback(null);
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            callback.onCallback(null);
+                        }
+                    });
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onCallback(null);
+            }
+        });
+    }
+
+    void getSelectedSession(CompletionCallback callback) {
+
+        DatabaseReference sessionReference = rootReference.child("selectedSessions").child(user.getUid());
+        sessionReference.keepSynced(true);
+
+        sessionReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful() && task.getResult().exists()) {
+                    selectedSession = String.valueOf(task.getResult().getValue());
+                    callback.onCallback(true);
+                }
+                else {
+                    callback.onCallback(null);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onCallback(null);
+            }
+        });
+    }
+
+    void isGroupMember(String courseCode, String batch, String section, CompletionCallback callback) {
+
+        DatabaseReference memberReference = rootReference.child("myCourses").child(user.getUid())
+                .child(selectedSession).child(courseCode).child(batch).child(section);
+        memberReference.keepSynced(true);
+
+        memberReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful() && task.getResult().exists()) {
+                    callback.onCallback(true);
+                }
+                else {
+                    callback.onCallback(false);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                callback.onCallback(false);
+            }
+        });
     }
 }

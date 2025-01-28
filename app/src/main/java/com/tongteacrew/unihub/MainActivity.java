@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if(isGranted) {
-                    System.out.println("FCM SDK (and your app) can post notifications.");
+                    System.out.println("FCM SDK (and the app) can post notifications.");
                 }
             });
 
@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         // Ask permission to send notifications
-        askNotificationPermission();
+        //askNotificationPermission();
         createNotificationChannel();
 
         // Initializing Cloudinary SDK

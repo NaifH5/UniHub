@@ -18,13 +18,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class CourseGroupAdapter extends RecyclerView.Adapter<CourseGroupAdapter.CourseGroupViewHolder> {
 
     Context context;
-    ArrayList<ArrayList<String>> courseGroups;
+    ArrayList<Map<String, String>> courseGroups;
 
-    public CourseGroupAdapter(Context context, ArrayList<ArrayList<String>> courseGroups) {
+    public CourseGroupAdapter(Context context, ArrayList<Map<String, String>> courseGroups) {
         this.context = context;
         this.courseGroups = courseGroups;
     }
@@ -40,10 +41,13 @@ public class CourseGroupAdapter extends RecyclerView.Adapter<CourseGroupAdapter.
 
         int index = holder.getAdapterPosition();
 
-        holder.courseCode.setText(courseGroups.get(index).get(0));
-        holder.courseName.setText(courseGroups.get(index).get(1));
-        holder.batch.setText(courseGroups.get(index).get(2));
-        holder.section.setText(courseGroups.get(index).get(3));
+        holder.courseCode.setText(courseGroups.get(index).get("courseCode"));
+        holder.batch.setText(String.format("Batch %s", courseGroups.get(index).get("batch")));
+        holder.section.setText(String.format("Section %s", courseGroups.get(index).get("section")));
+
+        if(courseGroups.get(index).containsKey("courseName")) {
+            holder.courseName.setText(courseGroups.get(index).get("courseName"));
+        }
 
         holder.courseGroupRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override

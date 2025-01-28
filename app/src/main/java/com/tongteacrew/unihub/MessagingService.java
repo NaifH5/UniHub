@@ -15,16 +15,41 @@ import androidx.core.app.NotificationManagerCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class MessagingService extends FirebaseMessagingService {
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
+    FirebaseUser user = mAuth.getCurrentUser();
+
     @Override
     public void onNewToken(@NonNull String token) {
 
-        super.onNewToken(token);
-        System.out.println(token);
+        if(user!=null) {
+
+            DatabaseReference accountReference = rootReference.child("student").child(user.getUid()).child("fullName");
+
+            accountReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if(task.isSuccessful() && task.getResult().exists()) {
+                        updateToken("student", token);
+                    }
+                    else {
+                        updateToken("facultyMember", token);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -93,5 +118,19 @@ public class MessagingService extends FirebaseMessagingService {
                         }
                     });
         }
+    }
+
+    void updateToken(String accountType, String token) {
+
+        DatabaseReference accountReference = rootReference.child(accountType).child(user.getUid()).child("deviceToken");
+
+        accountReference.setValue(token).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    System.out.println("Token updated.");
+                }
+            }
+        });
     }
 }

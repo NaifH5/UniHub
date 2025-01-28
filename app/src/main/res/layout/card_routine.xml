@@ -1,37 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:background="@drawable/shape_round_rectangle_outline" >
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+    <Button
+        android:id="@+id/btn_session"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/linearLayout"
+        android:background="@drawable/shape_circle"
+        android:backgroundTint="@color/darkShade2"
+        android:text="Fall 2024"
+        android:textAllCaps="false"
+        android:textColor="@color/white" />
 
-        <TextView
-            android:id="@+id/batch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:text="Batch"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_toStartOf="@+id/view4"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/shape_circle"
+        android:visibility="visible"
+        android:backgroundTint="@color/white">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/batch_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/batch"
-            android:layout_marginTop="5dp"
-            android:nestedScrollingEnabled="false"
-            tools:listitem="@layout/card_day" />
+        <ImageButton
+            android:id="@+id/btn_edit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:background="#00000000"
+            android:padding="10dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/icon_edit"
+            app:tint="@color/darkShade4" />
 
-    </RelativeLayout>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view4"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

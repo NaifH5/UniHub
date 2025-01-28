@@ -18,22 +18,23 @@
             android:paddingStart="15dp"
             android:paddingEnd="15dp" >
 
-            <Button
-                android:id="@+id/btn_select_session"
+            <Spinner
+                android:id="@+id/spinner_session"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/shape_circle"
                 android:backgroundTint="@color/white"
-                android:text="Fall 2024"
-                android:textAllCaps="false"
-                android:textColor="@color/darkShade4" />
+                android:padding="10dp"
+                android:spinnerMode="dropdown"
+                android:dropDownVerticalOffset="12dp"
+                android:gravity="center" />
 
             <TextView
                 android:id="@+id/schedule"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/btn_select_session"
+                android:layout_below="@+id/spinner_session"
                 android:layout_marginTop="20dp"
                 android:text="Schedule"
                 android:textColor="@color/white"

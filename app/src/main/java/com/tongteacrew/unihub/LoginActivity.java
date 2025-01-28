@@ -1,11 +1,16 @@
 package com.tongteacrew.unihub;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.SingleLineTransformationMethod;
@@ -36,6 +41,13 @@ public class LoginActivity extends AppCompatActivity {
     EditText emailInLogin, passwordInLogin;
     Button btnRegisterInLogin, btnLoginInLogin;
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if(isGranted) {
+                    System.out.println("FCM SDK (and the app) can post notifications.");
+                }
+            });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -54,6 +66,8 @@ public class LoginActivity extends AppCompatActivity {
         passwordInLogin = findViewById(R.id.password_in_login);
         btnLoginInLogin = findViewById(R.id.btn_add_to_my_clubs);
         btnRegisterInLogin = findViewById(R.id.btn_register_in_login);
+
+        askNotificationPermission();
 
         btnPasswordVisibilityInLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +104,19 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this.startActivity(intent);
             }
         });
+    }
+
+    private void askNotificationPermission() {
+
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.TIRAMISU) {
+
+            if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)== PackageManager.PERMISSION_GRANTED) {
+                System.out.println("FCM SDK (and your app) can post notifications.");
+            }
+            else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
     }
 
     void login() {

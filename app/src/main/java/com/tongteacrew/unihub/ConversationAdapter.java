@@ -49,33 +49,39 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public void onBindViewHolder(@NonNull ConversationAdapter.ConversationViewHolder holder, int position) {
 
         int index = holder.getAdapterPosition();
-        holder.progressIndicator.setVisibility(View.VISIBLE);
 
-        Glide.with(context)
-                .load(user.get(index).get("profilePicture"))
-                .error(R.drawable.icon_default_profile)
-                .placeholder(R.drawable.icon_default_profile)
-                .into(new CustomTarget<Drawable>(){
+        if(user.get(index).containsKey("profilePicture")) {
 
-                    @Override
-                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        holder.progressIndicator.setVisibility(View.GONE);
-                        Glide.with(context).load(resource).circleCrop().into(holder.userProfilePicture);
-                    }
+            holder.progressIndicator.setVisibility(View.VISIBLE);
 
-                    @Override
-                    public void onLoadCleared(@Nullable Drawable placeholder) {
-                        holder.progressIndicator.setVisibility(View.GONE);
-                        holder.userProfilePicture.setImageDrawable(placeholder);
-                    }
+            Glide.with(context)
+                    .load(user.get(index).get("profilePicture"))
+                    .error(R.drawable.icon_default_profile)
+                    .placeholder(R.drawable.icon_default_profile)
+                    .into(new CustomTarget<Drawable>(){
 
-                    @Override
-                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                        holder.progressIndicator.setVisibility(View.GONE);
-                    }
-                });
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                            holder.progressIndicator.setVisibility(View.GONE);
+                            Glide.with(context).load(resource).circleCrop().into(holder.userProfilePicture);
+                        }
 
-        holder.userName.setText(String.valueOf(user.get(index).get("fullName")));
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                            holder.progressIndicator.setVisibility(View.GONE);
+                            holder.userProfilePicture.setImageDrawable(placeholder);
+                        }
+
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                            holder.progressIndicator.setVisibility(View.GONE);
+                        }
+                    });
+        }
+
+        if(user.get(index).containsKey("fullName")) {
+            holder.userName.setText(String.valueOf(user.get(index).get("fullName")));
+        }
 
         if(user.get(index).containsKey("lastMessagedAt")) {
             holder.time.setVisibility(View.VISIBLE);
@@ -85,11 +91,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             holder.time.setVisibility(View.GONE);
         }
 
-        if((Boolean) user.get(index).get("isOnline")) {
-            holder.onlineStatus.setVisibility(View.VISIBLE);
-        }
-        else {
-            holder.onlineStatus.setVisibility(View.GONE);
+        if(user.get(index).containsKey("isOnline")) {
+            if((Boolean) user.get(index).get("isOnline")) {
+                holder.onlineStatus.setVisibility(View.VISIBLE);
+            }
+            else {
+                holder.onlineStatus.setVisibility(View.GONE);
+            }
         }
 
         holder.chatRelativeLayout.setOnClickListener(new View.OnClickListener() {

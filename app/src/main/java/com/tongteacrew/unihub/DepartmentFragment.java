@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -49,11 +50,11 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
     TextView departmentName;
     RecyclerView postRecyclerView, routineRecyclerView;
     PostAdapter postAdapter;
-    ButtonListAdapter buttonListAdapter;
+    RoutineAdapter routineAdapter;
     ImageButton btnAbout;
     ImageView departmentImage;
     Button btnPost, btnPosts, btnRoutine;
-    ArrayList<String> routine = new ArrayList<>();
+    ArrayList<Map<String, String>> routine = new ArrayList<>();
     ArrayList<Map<String, Object>> posts = new ArrayList<>();
     String myAccountType="student";
     long departmentId=1;
@@ -76,30 +77,7 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
         departmentImage = view.findViewById(R.id.department_image);
 
         postRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         routineRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        buttonListAdapter = new ButtonListAdapter(getContext(), routine);
-        routineRecyclerView.setAdapter(buttonListAdapter);
-
-        getMyAccountType(new CompletionCallback() {
-            @Override
-            public void onCallback(Object data) {
-                if(data!=null) {
-                    getDepartmentId(new CompletionCallback() {
-                        @Override
-                        public void onCallback(Object data) {
-                            if(data!=null) {
-                                departmentId = (long) data;
-                                setDepartmentName();
-                                getDepartmentImage();
-                                getPostIds();
-                                swipeRefreshLayout.setOnRefreshListener(DepartmentFragment.this);
-                            }
-                        }
-                    });
-                }
-            }
-        });
 
         btnAbout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,6 +109,7 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                         }
                         else if(item.getItemId()==R.id.routine) {
                             Intent intent = new Intent(getContext(), AddRoutineActivity.class);
+                            intent.putExtra("departmentId", departmentId);
                             requireContext().startActivity(intent);
                         }
 
@@ -171,6 +150,27 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
 
                 routineRecyclerView.setVisibility(View.VISIBLE);
                 postRecyclerView.setVisibility(View.GONE);
+            }
+        });
+
+        getMyAccountType(new CompletionCallback() {
+            @Override
+            public void onCallback(Object data) {
+                if(data!=null) {
+                    getDepartmentId(new CompletionCallback() {
+                        @Override
+                        public void onCallback(Object data) {
+                            if(data!=null) {
+                                departmentId = (long) data;
+                                setDepartmentName();
+                                getDepartmentImage();
+                                getPostIds();
+                                getRoutine();
+                                swipeRefreshLayout.setOnRefreshListener(DepartmentFragment.this);
+                            }
+                        }
+                    });
+                }
             }
         });
 
@@ -443,6 +443,45 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
         });
     }
 
+    void getRoutine() {
+
+        DatabaseReference routineReference = rootReference.child("routineUrl").child(String.valueOf(departmentId));
+        routineReference.keepSynced(true);
+
+        routineReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                routineReference.removeEventListener(this);
+
+                if(snapshot.exists()) {
+
+                    System.out.println("snapshot exists");
+                    if(routine.size()>0) {
+                        routine.clear();
+                    }
+
+                    for(DataSnapshot s : snapshot.getChildren()) {
+
+                        Map<String, String> map = (Map<String, String>) s.getValue();
+                        routine.add(map);
+
+                        if(routine.size()==snapshot.getChildrenCount()) {
+                            Collections.reverse(routine);
+                            routineAdapter = new RoutineAdapter(getContext(), routine, myAccountType, departmentId);
+                            routineRecyclerView.setAdapter(routineAdapter);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                routineReference.removeEventListener(this);
+            }
+        });
+    }
+
     String getDate(long time) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy").withZone(ZoneId.systemDefault());
@@ -459,7 +498,8 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
 
     @Override
     public void onRefresh() {
-        getPostIds();
         getDepartmentImage();
+        getPostIds();
+        getRoutine();
     }
 }

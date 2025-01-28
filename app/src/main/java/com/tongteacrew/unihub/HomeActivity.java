@@ -183,7 +183,16 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
-                intent.putExtra("id", "PosNPnWV5cdyz3CxF2JDOr3UABk2");
+                intent.putExtra("id", "GaReoq1NMYR17G59GwjeBPbWSL43");
+                HomeActivity.this.startActivity(intent);
+            }
+        });
+
+        btnDev3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                intent.putExtra("id", "7NcEHL3739WL3pCYpxFhdhSEC3j2");
                 HomeActivity.this.startActivity(intent);
             }
         });
@@ -195,10 +204,10 @@ public class HomeActivity extends AppCompatActivity {
 
     void setDevProfilePic() {
 
-        String[] ids = {"KJ5OxGwscxPViECVerFxHYPlyg53", "PosNPnWV5cdyz3CxF2JDOr3UABk2"};
-        ImageView[] btns = {btnDev1, btnDev2};
+        String[] ids = {"KJ5OxGwscxPViECVerFxHYPlyg53", "GaReoq1NMYR17G59GwjeBPbWSL43", "7NcEHL3739WL3pCYpxFhdhSEC3j2"};
+        ImageView[] btns = {btnDev1, btnDev2, btnDev3};
 
-        for(int i=0; i<2; i++) {
+        for(int i=0; i<3; i++) {
 
             final int index = i;
             DatabaseReference imageReference = rootReference.child("student").child(ids[index]).child("profilePicture");

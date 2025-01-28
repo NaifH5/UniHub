@@ -46,6 +46,7 @@ public class ChatsFragment extends Fragment {
     ArrayList<Map<String, Object>> messagedUser = new ArrayList<>();
     ArrayList<Map<String, Object>> searchResult = new ArrayList<>();
     ArrayList<Map<String, Object>> allUsers = new ArrayList<>();
+    long messagedUserCount=0;
 
     public ChatsFragment() {}
 
@@ -61,8 +62,6 @@ public class ChatsFragment extends Fragment {
         conversationAdapter = new ConversationAdapter(getContext(), messagedUser);
         conversationRecyclerView.setAdapter(conversationAdapter);
 
-        getAllUsers(0);
-
         search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -76,73 +75,14 @@ public class ChatsFragment extends Fragment {
             public void afterTextChanged(Editable s) {}
         });
 
+        setInteractionListener();
+
         return view;
     }
 
-    void getAllUsers(int accountType) {
+    void setInteractionListener() {
 
-        String[] account = {"student", "facultyMember"};
-
-        DatabaseReference usersReference = rootReference.child(account[accountType]);
-        usersReference.keepSynced(true);
-
-        usersReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                usersReference.removeEventListener(this);
-
-                if(snapshot.exists()) {
-
-                    int i=0;
-
-                    for(DataSnapshot s : snapshot.getChildren()) {
-
-                        i++;
-                        Map<String, Object> userDetails = (Map<String, Object>) s.getValue();
-                        Map<String, Object> user = new HashMap<>();
-                        user.put("accountType", account[accountType]);
-                        user.put("id", s.getKey());
-                        user.put("fullName", userDetails.get("fullName"));
-
-                        if(userDetails.containsKey("profilePicture")) {
-                            user.put("profilePicture", userDetails.get("profilePicture"));
-                        }
-
-                        if(userDetails.containsKey("deviceToken")) {
-                            user.put("deviceToken", userDetails.get("deviceToken"));
-                        }
-
-                        if(!Objects.equals(s.getKey(), myId)) {
-                            allUsers.add(user);
-                        }
-
-                        if(i==snapshot.getChildrenCount() && accountType<1) {
-                            getAllUsers(accountType+1);
-                        }
-                        else if(i==snapshot.getChildrenCount() && accountType==1) {
-                            setInteractionListener(0);
-                        }
-                    }
-                }
-                else if(accountType<1) {
-                    getAllUsers(accountType+1);
-                }
-                else {
-                    setInteractionListener(0);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                usersReference.removeEventListener(this);
-            }
-        });
-    }
-
-    void setInteractionListener(int index) {
-
-        DatabaseReference interactionReference = rootReference.child("interactions").child(myId).child(String.valueOf(allUsers.get(index).get("id")));
+        DatabaseReference interactionReference = rootReference.child("interactions").child(myId);
         interactionReference.keepSynced(true);
 
         interactionReference.addValueEventListener(new ValueEventListener() {
@@ -150,14 +90,25 @@ public class ChatsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 if(snapshot.exists()) {
-                    allUsers.get(index).put("messageId", snapshot.getValue());
-                }
 
-                if(index+1<allUsers.size()) {
-                    setInteractionListener(index+1);
+                    messagedUserCount = snapshot.getChildrenCount();
+
+                    for(DataSnapshot s : snapshot.getChildren()) {
+
+                        Map<String, Object> user = new HashMap<>();
+                        user.put("id", s.getKey());
+                        user.put("messageId", s.getValue());
+                        allUsers.add(user);
+
+                        if(allUsers.size()==messagedUserCount) {
+                            getMessagedUserDetails(0);
+                            getAllUsers();
+                            conversationRecyclerView.setAdapter(new ConversationAdapter(getContext(), allUsers));
+                        }
+                    }
                 }
                 else {
-                    getLastMessageTime(0);
+                    getAllUsers();
                 }
             }
 
@@ -166,80 +117,198 @@ public class ChatsFragment extends Fragment {
         });
     }
 
-    void getLastMessageTime(int index) {
+    void getMessagedUserDetails(int index) {
 
-        if(allUsers.get(index).containsKey("messageId")) {
+        String[] account = {"student", "facultyMember"};
 
-            Query timeReference = rootReference.child("chats").child(String.valueOf(allUsers.get(index).get("messageId"))).limitToLast(1);
-            timeReference.keepSynced(true);
+        for(int i=0; i<2; i++) {
 
-            timeReference.addValueEventListener(new ValueEventListener() {
+            final int pos = i;
+            DatabaseReference usersReference = rootReference.child(account[i]).child(String.valueOf(allUsers.get(index).get("id")));
+            usersReference.keepSynced(true);
+
+            usersReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    if(snapshot.exists()) {
-                        Map<String, Map<String, Object>> time = (Map<String, Map<String, Object>>) snapshot.getValue();
-                        Map.Entry<String, Map<String, Object>> entry = time.entrySet().iterator().next();
-                        allUsers.get(index).put("lastMessagedAt", getTime(Long.parseLong(entry.getKey()))+" "+getDate(Long.parseLong(entry.getKey())));
-                    }
+                    if(snapshot.exists() && snapshot.getValue()!=null) {
 
-                    if(index+1<allUsers.size()) {
-                        getLastMessageTime(index+1);
-                    }
-                    else {
-                        setOnlineStatus(0);
+                        Map<String, Object> userDetails = (Map<String, Object>) snapshot.getValue();
+                        allUsers.get(index).put("accountType", account[pos]);
+                        allUsers.get(index).put("fullName", userDetails.get("fullName"));
+
+                        if(userDetails.containsKey("profilePicture")) {
+                            allUsers.get(index).put("profilePicture", userDetails.get("profilePicture"));
+                        }
+
+                        if(userDetails.containsKey("deviceToken")) {
+                            allUsers.get(index).put("deviceToken", userDetails.get("deviceToken"));
+                        }
+
+                        if(index+1<messagedUserCount) {
+                            getMessagedUserDetails(index+1);
+                        }
+                        else {
+                            getLastMessageTime(0);
+                            setOnlineStatus(0);
+                        }
                     }
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {}
+                public void onCancelled(@NonNull DatabaseError error) {
+                    if(index+1<messagedUserCount) {
+                        getMessagedUserDetails(index+1);
+                    }
+                }
             });
         }
-        else if(index+1<allUsers.size()) {
-            getLastMessageTime(index+1);
-        }
-        else {
-            setOnlineStatus(0);
-        }
+    }
+
+    void getLastMessageTime(int index) {
+
+        Query timeReference = rootReference.child("chats").child(String.valueOf(allUsers.get(index).get("messageId"))).limitToLast(1);
+        timeReference.keepSynced(true);
+
+        timeReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists()) {
+
+                    Map<String, Map<String, Object>> time = (Map<String, Map<String, Object>>) snapshot.getValue();
+                    Map.Entry<String, Map<String, Object>> entry = time.entrySet().iterator().next();
+                    allUsers.get(index).put("lastMessagedAt", getTime(Long.parseLong(entry.getKey()))+" "+getDate(Long.parseLong(entry.getKey())));
+                }
+
+                if(index+1<messagedUserCount) {
+                    getLastMessageTime(index+1);
+                }
+                else if(index+1==messagedUserCount) {
+                    sortList();
+                    getMessagedUsers();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if(index+1<messagedUserCount) {
+                    getLastMessageTime(index+1);
+                }
+            }
+        });
     }
 
     void setOnlineStatus(int index) {
 
-        if(allUsers.get(index).containsKey("messageId")) {
+        DatabaseReference onlineStatusReference = rootReference.child("onlineStatus").child(String.valueOf(allUsers.get(index).get("id"))).child("isOnline");
 
-            DatabaseReference onlineStatusReference = rootReference.child("onlineStatus").child(String.valueOf(allUsers.get(index).get("id"))).child("isOnline");
-            onlineStatusReference.keepSynced(true);
+        onlineStatusReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-            onlineStatusReference.addValueEventListener(new ValueEventListener() {
+                if(snapshot.exists()) {
+                    allUsers.get(index).put("isOnline", snapshot.getValue());
+                }
+                else {
+                    allUsers.get(index).put("isOnline", false);
+                }
+
+                if(index+1<messagedUserCount) {
+                    setOnlineStatus(index+1);
+                }
+                else {
+                    conversationAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                if(index+1<messagedUserCount) {
+                    setOnlineStatus(index+1);
+                }
+            }
+        });
+    }
+
+    void getAllUsers() {
+
+        String[] account = {"student", "facultyMember"};
+
+        for(int i=0; i<2; i++) {
+
+            final int index = i;
+            DatabaseReference usersReference = rootReference.child(account[index]);
+            usersReference.keepSynced(true);
+
+            usersReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    if(snapshot.exists()) {
-                        allUsers.get(index).put("isOnline", snapshot.getValue());
-                    }
-                    else {
-                        allUsers.get(index).put("isOnline", false);
-                    }
+                    usersReference.removeEventListener(this);
 
-                    if(index+1<allUsers.size()) {
-                        setOnlineStatus(index+1);
-                    }
-                    else {
-                        getMessagedUsers();
+                    if(snapshot.exists()) {
+
+                        for(DataSnapshot s : snapshot.getChildren()) {
+
+                            if(messagedUserCount==0) {
+
+                                Map<String, Object> userDetails = (Map<String, Object>) s.getValue();
+                                Map<String, Object> user = new HashMap<>();
+                                user.put("accountType", account[index]);
+                                user.put("id", s.getKey());
+                                user.put("fullName", userDetails.get("fullName"));
+
+                                if(userDetails.containsKey("profilePicture")) {
+                                    user.put("profilePicture", userDetails.get("profilePicture"));
+                                }
+
+                                if(userDetails.containsKey("deviceToken")) {
+                                    user.put("deviceToken", userDetails.get("deviceToken"));
+                                }
+
+                                if(!Objects.equals(s.getKey(), myId)) {
+                                    allUsers.add(user);
+                                }
+                            }
+                            else {
+
+                                for(int i=0; i<messagedUserCount; i++) {
+
+                                    if(Objects.equals(s.getKey(), String.valueOf(allUsers.get(i).get("id")))) {
+                                        break;
+                                    }
+                                    else if(i==messagedUserCount-1) {
+
+                                        Map<String, Object> userDetails = (Map<String, Object>) s.getValue();
+                                        Map<String, Object> user = new HashMap<>();
+                                        user.put("accountType", account[index]);
+                                        user.put("id", s.getKey());
+                                        user.put("fullName", userDetails.get("fullName"));
+
+                                        if(userDetails.containsKey("profilePicture")) {
+                                            user.put("profilePicture", userDetails.get("profilePicture"));
+                                        }
+
+                                        if(userDetails.containsKey("deviceToken")) {
+                                            user.put("deviceToken", userDetails.get("deviceToken"));
+                                        }
+
+                                        if(!Objects.equals(s.getKey(), myId)) {
+                                            allUsers.add(user);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {}
+                public void onCancelled(@NonNull DatabaseError error) {
+                    usersReference.removeEventListener(this);
+                }
             });
-        }
-        else if(index+1<allUsers.size()) {
-            allUsers.get(index).put("isOnline", false);
-            setOnlineStatus(index+1);
-        }
-        else {
-            allUsers.get(index).put("isOnline", false);
-            getMessagedUsers();
         }
     }
 
@@ -255,7 +324,6 @@ public class ChatsFragment extends Fragment {
             }
         }
 
-        sortList();
         conversationAdapter = new ConversationAdapter(getContext(), messagedUser);
         conversationRecyclerView.setAdapter(conversationAdapter);
     }
