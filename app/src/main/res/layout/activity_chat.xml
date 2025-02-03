@@ -101,13 +101,23 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chat_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_above="@+id/message_linear_layout"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/empty_message"
         android:layout_below="@+id/chat_toolbar"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         app:reverseLayout="true"
         app:stackFromEnd="false" />
+
+    <TextView
+        android:id="@+id/empty_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/message_linear_layout"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center"
+        android:text="No messages." />
 
     <LinearLayout
         android:id="@+id/message_linear_layout"

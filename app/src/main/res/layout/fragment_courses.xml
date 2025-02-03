@@ -19,7 +19,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="10dp"
-            android:background="@drawable/shape_circle_outline" >
+            android:background="@drawable/shape_circle_outline"
+            android:visibility="gone" >
 
             <EditText
                 android:id="@+id/batch"

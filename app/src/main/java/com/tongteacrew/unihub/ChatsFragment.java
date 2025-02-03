@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +42,7 @@ public class ChatsFragment extends Fragment {
     FirebaseUser user = mAuth.getCurrentUser();
     String myId = user.getUid();
     EditText search;
+    TextView emptyMessage;
     RecyclerView conversationRecyclerView;
     ConversationAdapter conversationAdapter;
     ArrayList<Map<String, Object>> messagedUser = new ArrayList<>();
@@ -57,6 +59,7 @@ public class ChatsFragment extends Fragment {
 
         conversationRecyclerView = view.findViewById(R.id.conversation_recycler_view);
         search = view.findViewById(R.id.search);
+        emptyMessage = view.findViewById(R.id.empty_message);
 
         conversationRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         conversationAdapter = new ConversationAdapter(getContext(), messagedUser);
@@ -91,6 +94,8 @@ public class ChatsFragment extends Fragment {
 
                 if(snapshot.exists()) {
 
+                    conversationRecyclerView.setVisibility(View.VISIBLE);
+                    emptyMessage.setVisibility(View.GONE);
                     messagedUserCount = snapshot.getChildrenCount();
 
                     for(DataSnapshot s : snapshot.getChildren()) {
@@ -108,6 +113,8 @@ public class ChatsFragment extends Fragment {
                     }
                 }
                 else {
+                    conversationRecyclerView.setVisibility(View.GONE);
+                    emptyMessage.setVisibility(View.VISIBLE);
                     getAllUsers();
                 }
             }
@@ -367,8 +374,19 @@ public class ChatsFragment extends Fragment {
             sortList();
             conversationAdapter = new ConversationAdapter(getContext(), messagedUser);
             conversationRecyclerView.setAdapter(conversationAdapter);
+
+            if(messagedUser.size()>0) {
+                conversationRecyclerView.setVisibility(View.VISIBLE);
+                emptyMessage.setVisibility(View.GONE);
+            }
+            else {
+                conversationRecyclerView.setVisibility(View.GONE);
+                emptyMessage.setVisibility(View.VISIBLE);
+            }
         }
         else {
+            conversationRecyclerView.setVisibility(View.VISIBLE);
+            emptyMessage.setVisibility(View.GONE);
             conversationAdapter = new ConversationAdapter(getContext(), searchResult);
             conversationRecyclerView.setAdapter(conversationAdapter);
         }

@@ -1,5 +1,6 @@
 package com.tongteacrew.unihub;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,15 +8,35 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GroupInfoActivity extends AppCompatActivity {
 
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
+    FirebaseUser user = mAuth.getCurrentUser();
     ImageButton btnBack;
     RecyclerView teacherRecyclerView, crRecyclerView, studentsRecyclerView;
-    GroupMembersAdapter groupMembersAdapter;
-    ArrayList<ArrayList<String>> courseTeacher, classRepresentative, students;
+    TextView courseCode, batch, section;
+    GroupMembersAdapter teacherAdapter, studentsAdapter, crAdapter;
+    ArrayList<Map<String, Object>> courseTeacher = new ArrayList<>();
+    ArrayList<Map<String, Object>> classRepresentative = new ArrayList<>();
+    ArrayList<Map<String, Object>> students = new ArrayList<>();
+    String courseGroupId, myAccountType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,27 +44,48 @@ public class GroupInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_info);
 
-        generateTestMembers();
+        courseGroupId = (String) getIntent().getSerializableExtra("courseGroupId");
+        myAccountType = (String) getIntent().getSerializableExtra("myAccountType");
 
         btnBack = findViewById(R.id.btn_back);
+        courseCode = findViewById(R.id.course_code);
+        batch = findViewById(R.id.batch);
+        section = findViewById(R.id.section);
         teacherRecyclerView = findViewById(R.id.teacher_recycler_view);
         crRecyclerView = findViewById(R.id.cr_recycler_view);
         studentsRecyclerView = findViewById(R.id.students_recycler_view);
 
-        teacherRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
-        //teacherRecyclerView.setHasFixedSize(true);
-        groupMembersAdapter = new GroupMembersAdapter(GroupInfoActivity.this, courseTeacher);
-        teacherRecyclerView.setAdapter(groupMembersAdapter);
+        String[] parts = courseGroupId.split("_");
+        courseCode.setText(parts[3]);
+        batch.setText(String.format("Batch %s", parts[1]));
+        section.setText(String.format("Section %s", parts[2]));
 
-        crRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
-        //crRecyclerView.setHasFixedSize(true);
-        groupMembersAdapter = new GroupMembersAdapter(GroupInfoActivity.this, classRepresentative);
-        crRecyclerView.setAdapter(groupMembersAdapter);
+        teacherRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
+        teacherAdapter = new GroupMembersAdapter(GroupInfoActivity.this, courseTeacher, courseGroupId, myAccountType, new CompletionCallback() {
+            @Override
+            public void onCallback(Object data) {
+                finish();
+            }
+        });
+        teacherRecyclerView.setAdapter(teacherAdapter);
 
         studentsRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
-        //studentsRecyclerView.setHasFixedSize(true);
-        groupMembersAdapter = new GroupMembersAdapter(GroupInfoActivity.this, students);
-        studentsRecyclerView.setAdapter(groupMembersAdapter);
+        studentsAdapter = new GroupMembersAdapter(GroupInfoActivity.this, students, courseGroupId, myAccountType, new CompletionCallback() {
+            @Override
+            public void onCallback(Object data) {
+                finish();
+            }
+        });
+        studentsRecyclerView.setAdapter(studentsAdapter);
+
+        crRecyclerView.setLayoutManager(new LinearLayoutManager(GroupInfoActivity.this));
+        crAdapter = new GroupMembersAdapter(GroupInfoActivity.this, classRepresentative, courseGroupId, myAccountType, new CompletionCallback() {
+            @Override
+            public void onCallback(Object data) {
+                finish();
+            }
+        });
+        crRecyclerView.setAdapter(crAdapter);
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,33 +93,159 @@ public class GroupInfoActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        getCourseTeacher();
+        getStudents();
+        getCR();
     }
 
-    void generateTestMembers() {
+    void getCourseTeacher() {
 
-        courseTeacher = new ArrayList<>();
-        classRepresentative = new ArrayList<>();
-        students = new ArrayList<>();
+        DatabaseReference facultyReference = rootReference.child("courseGroupMembers").child(courseGroupId).child("facultyMember");
+        facultyReference.keepSynced(true);
 
-        ArrayList arrayList = new ArrayList();
-        arrayList.add("https://www.pbs.org/newshour/app/uploads/2017/02/GettyImages-200193780-001-1024x768.jpg");
-        arrayList.add("Lorem Ipsum Khan");
-        arrayList.add("2132020000");
-        courseTeacher.add(arrayList);
+        facultyReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-        arrayList = new ArrayList();
-        arrayList.add("https://i.pinimg.com/736x/5a/ab/f8/5aabf84d67477f77d3bb8f0fe4cfcd17.jpg");
-        arrayList.add("Lorem Ipsum Ahmed");
-        arrayList.add("2132020000");
-        classRepresentative.add(arrayList);
+                if(courseTeacher.size()>0) {
+                    courseTeacher.clear();
+                }
 
-        for(int i=0; i<20; i++) {
+                if(snapshot.exists()) {
 
-            arrayList = new ArrayList();
-            arrayList.add("https://i.pinimg.com/736x/5a/ab/f8/5aabf84d67477f77d3bb8f0fe4cfcd17.jpg");
-            arrayList.add("Lorem Ipsum Ahmed");
-            arrayList.add("2132020000");
-            students.add(arrayList);
-        }
+                    for(DataSnapshot s : snapshot.getChildren()) {
+
+                        getProfile(s.getKey(), "facultyMember", new CompletionCallback() {
+                            @Override
+                            public void onCallback(Object data) {
+                                Map<String, Object> userData = (Map<String, Object>) data;
+                                userData.put("isCr", false);
+                                courseTeacher.add(userData);
+                                teacherAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }
+                else {
+                    teacherAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void getStudents() {
+
+        DatabaseReference studentReference = rootReference.child("courseGroupMembers").child(courseGroupId).child("student");
+        studentReference.keepSynced(true);
+
+        studentReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(students.size()>0) {
+                    students.clear();
+                }
+
+                if(snapshot.exists()) {
+
+                    for(DataSnapshot s : snapshot.getChildren()) {
+
+                        getProfile(s.getKey(), "student", new CompletionCallback() {
+                            @Override
+                            public void onCallback(Object data) {
+                                Map<String, Object> userData = (Map<String, Object>) data;
+                                userData.put("isCr", false);
+                                students.add(userData);
+                                studentsAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }
+                else {
+                    studentsAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void getCR() {
+
+        DatabaseReference crReference = rootReference.child("courseGroupMembers").child(courseGroupId).child("classRepresentative");
+        crReference.keepSynced(true);
+
+        crReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(classRepresentative.size()>0) {
+                    classRepresentative.clear();
+                }
+
+                if(snapshot.exists()) {
+
+                    for(DataSnapshot s : snapshot.getChildren()) {
+
+                        getProfile(s.getKey(), "student", new CompletionCallback() {
+                            @Override
+                            public void onCallback(Object data) {
+                                Map<String, Object> userData = (Map<String, Object>) data;
+                                userData.put("isCr", true);
+                                classRepresentative.add(userData);
+                                crAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }
+                else {
+                    crAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void getProfile(String id, String accountType, CompletionCallback callback) {
+
+        DatabaseReference userReference = rootReference.child(accountType).child(id);
+        userReference.keepSynced(true);
+
+        userReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                if(task.isSuccessful() && task.getResult().exists()) {
+
+                    Map<String, Object> userData = (Map<String, Object>) task.getResult().getValue();
+                    Map<String, Object> filteredData = new HashMap<>();
+                    filteredData.put("fullName", userData.get("fullName"));
+                    filteredData.put("accountType", accountType);
+                    filteredData.put("id", userData.get("id"));
+                    filteredData.put("uid", id);
+
+                    if(userData.containsKey("batchId")) {
+                        filteredData.put("batch", userData.get("batchId"));
+                    }
+
+                    if(userData.containsKey("sectionId")) {
+                        filteredData.put("section", userData.get("sectionId"));
+                    }
+
+                    if(userData.containsKey("profilePicture")) {
+                        filteredData.put("profilePicture", userData.get("profilePicture"));
+                    }
+
+                    callback.onCallback(filteredData);
+                }
+            }
+        });
     }
 }

@@ -65,7 +65,7 @@ public class ChatActivity extends AppCompatActivity {
     RelativeLayout onlineStatus, profilePicLayout;
     ImageView userProfilePicture;
     ImageButton btnBack, btnSend;
-    TextView profileName;
+    TextView profileName, emptyMessage;
     EditText message;
     CircularProgressIndicator progressIndicator;
     RecyclerView chatRecyclerView;
@@ -93,6 +93,7 @@ public class ChatActivity extends AppCompatActivity {
         message = findViewById(R.id.message);
         userProfilePicture = findViewById(R.id.profile_picture);
         progressIndicator = findViewById(R.id.circular_progress_indicator);
+        emptyMessage = findViewById(R.id.empty_message);
 
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(ChatActivity.this));
         chatRecyclerView.setHasFixedSize(true);
@@ -212,24 +213,34 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                if(messages.size()>0) {
-                    messages.clear();
-                }
+                if(snapshot.exists()) {
 
-                for(DataSnapshot s : snapshot.getChildren()) {
-                    Map<String, Object> msg = new HashMap<>();
-                    msg.put("date", getDate(Long.parseLong(s.getKey())));
-                    msg.put("time", getTime(Long.parseLong(s.getKey())));
-                    Map<String, Object> m = (Map<String, Object>) s.getValue();
-                    msg.put("text", m.get("text"));
-                    msg.put("sender", m.get("sender"));
-                    msg.put("isSent", true);
-                    messages.add(msg);
+                    chatRecyclerView.setVisibility(View.VISIBLE);
+                    emptyMessage.setVisibility(View.GONE);
 
-                    if(messages.size()==snapshot.getChildrenCount()) {
-                        chatAdapter.notifyDataSetChanged();
-                        chatRecyclerView.scrollToPosition(chatAdapter.getItemCount()-1);
+                    if(messages.size()>0) {
+                        messages.clear();
                     }
+
+                    for(DataSnapshot s : snapshot.getChildren()) {
+                        Map<String, Object> msg = new HashMap<>();
+                        msg.put("date", getDate(Long.parseLong(s.getKey())));
+                        msg.put("time", getTime(Long.parseLong(s.getKey())));
+                        Map<String, Object> m = (Map<String, Object>) s.getValue();
+                        msg.put("text", m.get("text"));
+                        msg.put("sender", m.get("sender"));
+                        msg.put("isSent", true);
+                        messages.add(msg);
+
+                        if(messages.size()==snapshot.getChildrenCount()) {
+                            chatAdapter.notifyDataSetChanged();
+                            chatRecyclerView.scrollToPosition(chatAdapter.getItemCount()-1);
+                        }
+                    }
+                }
+                else {
+                    chatRecyclerView.setVisibility(View.GONE);
+                    emptyMessage.setVisibility(View.VISIBLE);
                 }
             }
 

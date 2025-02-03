@@ -58,8 +58,9 @@
                 android:ellipsize="end"
                 android:gravity="center"
                 android:maxLines="1"
-                android:text="Digital Signal Processing"
+                android:text=""
                 android:textColor="@color/darkShade1"
+                android:visibility="gone"
                 android:textSize="14sp" />
 
         </LinearLayout>
@@ -71,12 +72,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
-        android:layout_alignParentBottom="true"
         android:nestedScrollingEnabled="false"
         android:paddingStart="15dp"
         android:paddingEnd="15dp"
         android:visibility="visible"
         tools:listitem="@layout/card_group_announcement" />
+
+    <TextView
+        android:id="@+id/empty_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/announcement_recycler_view"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:text="Nothing announced yet." />
 
     <Button
         android:id="@+id/btn_add_announcement"

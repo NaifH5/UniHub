@@ -36,11 +36,13 @@ public class AllCoursesGroupAdapter extends RecyclerView.Adapter<AllCoursesGroup
     Context context;
     ArrayList<Map<String, String>> courseGroups;
     String selectedSession;
+    String myAccountType;
 
-    public AllCoursesGroupAdapter(Context context, ArrayList<Map<String, String>> courseGroups, String selectedSession) {
+    public AllCoursesGroupAdapter(Context context, ArrayList<Map<String, String>> courseGroups, String selectedSession, String myAccountType) {
         this.context = context;
         this.courseGroups = courseGroups;
         this.selectedSession = selectedSession;
+        this.myAccountType = myAccountType;
     }
 
     @NonNull
@@ -95,38 +97,42 @@ public class AllCoursesGroupAdapter extends RecyclerView.Adapter<AllCoursesGroup
 
     void joinGroup(int index, Button button) {
 
-        String courseName = "";
+        String courseCode = courseGroups.get(index).get("courseCode");
+        String batch = courseGroups.get(index).get("batch");
+        String section = courseGroups.get(index).get("section");
+        String courseName = courseGroups.get(index).getOrDefault("courseName", "");
+        String groupId = selectedSession+"_"+batch+"_"+section+"_"+courseCode;
 
-        if(courseGroups.get(index).containsKey("courseName")) {
-            courseName = courseGroups.get(index).get("courseName");
-        }
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("myCourses/"+user.getUid()+"/"+selectedSession+"/"+courseCode+"/"+batch+"/"+section, courseName);
+        updates.put("courseGroupMembers/"+groupId+"/"+myAccountType+"/"+user.getUid(), true);
 
-        DatabaseReference memberReference = rootReference.child("myCourses").child(user.getUid())
-                .child(selectedSession).child(courseGroups.get(index).get("courseCode"))
-                .child(courseGroups.get(index).get("batch")).child(courseGroups.get(index).get("section"));
-
-        memberReference.setValue(courseName).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()) {
-                    courseGroups.get(index).put("isMember", String.valueOf(true));
-                    button.setText("Leave");
-                    notifyDataSetChanged();
-                }
+        rootReference.updateChildren(updates).addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                courseGroups.get(index).put("isMember", "true");
+                button.setText("Leave");
+                notifyDataSetChanged();
             }
         });
     }
 
     void leaveGroup(int index, Button button) {
 
-        DatabaseReference memberReference = rootReference.child("myCourses").child(user.getUid())
-                .child(selectedSession).child(courseGroups.get(index).get("courseCode"))
-                .child(courseGroups.get(index).get("batch")).child(courseGroups.get(index).get("section"));
+        String groupId = selectedSession + "_" + courseGroups.get(index).get("batch") + "_"
+                + courseGroups.get(index).get("section") + "_"
+                + courseGroups.get(index).get("courseCode");
 
-        memberReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                courseGroups.get(index).put("isMember", String.valueOf(false));
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("myCourses/" + user.getUid() + "/" + selectedSession + "/"
+                + courseGroups.get(index).get("courseCode") + "/"
+                + courseGroups.get(index).get("batch") + "/"
+                + courseGroups.get(index).get("section"), null);
+
+        updates.put("courseGroupMembers/"+groupId+"/"+myAccountType+"/"+user.getUid(), null);
+
+        rootReference.updateChildren(updates).addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                courseGroups.get(index).put("isMember", "false");
                 button.setText("Join");
                 notifyDataSetChanged();
             }

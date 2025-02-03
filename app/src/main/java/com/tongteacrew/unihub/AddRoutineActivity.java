@@ -185,7 +185,7 @@ public class AddRoutineActivity extends AppCompatActivity {
     void callApi(int index, String accessToken, String spreadsheetId, String sheetsApiUrl, OkHttpClient client, String sessionId, String googleSheetUrl) {
 
         String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-        String range = days[index]+"!B2:J19";
+        String range = days[index]+"!B2:J52";
         String url = sheetsApiUrl+spreadsheetId+"/values/"+range;
 
         Request request = new Request.Builder()
@@ -315,7 +315,7 @@ public class AddRoutineActivity extends AppCompatActivity {
 
                         if(!data.isNull(k)) {
 
-                            String[] parts = String.valueOf(data.get(k)).split("\\s+", 3);
+                            String[] parts = String.valueOf(data.get(k)).trim().split("\\s+");
 
                             if(parts.length==3) {
 
@@ -361,15 +361,16 @@ public class AddRoutineActivity extends AppCompatActivity {
         Map<String, Object> updates = new HashMap<>();
         updates.put("courses/"+departmentId+"/" + sessionId, coursesData);
         updates.put("routine/"+departmentId+"/" + sessionId, routineData);
+        updates.put("facultyRoutine/"+sessionId, facultyRoutineDetails);
         updates.put("routineUrl/"+departmentId+"/"+routineUrlKey+"/"+sessionId, googleSheetUrl);
         updates.put("sessions/"+departmentId+"/"+sessionsKey, sessionId);
-        updates.put("facultyRoutine/"+sessionId, facultyRoutineDetails);
 
         rootReference.updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()) {
                     System.out.println("All updates completed successfully!");
+                    finish();
                 }
                 else {
                     System.out.println("Failed! " + task.getException());

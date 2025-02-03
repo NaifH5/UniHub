@@ -24,10 +24,12 @@ public class CourseGroupAdapter extends RecyclerView.Adapter<CourseGroupAdapter.
 
     Context context;
     ArrayList<Map<String, String>> courseGroups;
+    String selectedSession;
 
-    public CourseGroupAdapter(Context context, ArrayList<Map<String, String>> courseGroups) {
+    public CourseGroupAdapter(Context context, ArrayList<Map<String, String>> courseGroups, String selectedSession) {
         this.context = context;
         this.courseGroups = courseGroups;
+        this.selectedSession = selectedSession;
     }
 
     @NonNull
@@ -52,7 +54,17 @@ public class CourseGroupAdapter extends RecyclerView.Adapter<CourseGroupAdapter.
         holder.courseGroupRelativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(context, CourseGroupActivity.class);
+                intent.putExtra("selectedSession", selectedSession);
+                intent.putExtra("batch", courseGroups.get(index).get("batch"));
+                intent.putExtra("section", courseGroups.get(index).get("section"));
+                intent.putExtra("courseCode", courseGroups.get(index).get("courseCode"));
+
+                if(courseGroups.get(index).containsKey("courseName")) {
+                    intent.putExtra("courseName", courseGroups.get(index).get("courseName"));
+                }
+
                 context.startActivity(intent);
             }
         });

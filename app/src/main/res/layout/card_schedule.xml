@@ -5,6 +5,7 @@
     android:paddingEnd="10dp">
 
     <RelativeLayout
+        android:id="@+id/schedule_layout"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_round_rectangle"
@@ -18,7 +19,7 @@
             android:layout_marginTop="5dp"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
-            android:text="CSE-1111"
+            android:text=""
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -31,7 +32,7 @@
             android:layout_below="@+id/course_code"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
-            android:text="12 Dec 2024"
+            android:text=""
             android:textColor="@color/darkShade1"
             android:textStyle="bold"
             android:textSize="12sp"
@@ -60,8 +61,7 @@
             android:layout_marginBottom="5dp"
             android:ellipsize="end"
             android:maxLines="8"
-            android:text="@string/lorem_ipsum"
-
+            android:text=""
             android:textColor="@color/white"
             android:textSize="12sp" />
 

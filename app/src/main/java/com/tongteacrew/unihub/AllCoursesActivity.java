@@ -35,6 +35,7 @@ public class AllCoursesActivity extends AppCompatActivity {
     ArrayList<Map<String, String>> courseGroups = new ArrayList<>();
     long departmentId=1;
     String selectedSession=null;
+    String myAccountType="student";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +47,6 @@ public class AllCoursesActivity extends AppCompatActivity {
         courseGroupRecyclerView = findViewById(R.id.course_group_recycler_view);
 
         courseGroupRecyclerView.setLayoutManager(new LinearLayoutManager(AllCoursesActivity.this));
-        allCourseGroupAdapter = new AllCoursesGroupAdapter(AllCoursesActivity.this, courseGroups, selectedSession);
-        courseGroupRecyclerView.setAdapter(allCourseGroupAdapter);
 
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,10 +64,38 @@ public class AllCoursesActivity extends AppCompatActivity {
                         @Override
                         public void onCallback(Object data) {
                             if(data!=null) {
-                                getAllCourses();
+                                getMyAccountType(new CompletionCallback() {
+                                    @Override
+                                    public void onCallback(Object data) {
+                                        allCourseGroupAdapter = new AllCoursesGroupAdapter(AllCoursesActivity.this, courseGroups, selectedSession, myAccountType);
+                                        courseGroupRecyclerView.setAdapter(allCourseGroupAdapter);
+                                        getAllCourses();
+                                    }
+                                });
                             }
                         }
                     });
+                }
+            }
+        });
+    }
+
+    void getMyAccountType(CompletionCallback callback) {
+
+        DatabaseReference accountTypeReference = rootReference.child("student").child(user.getUid());
+        accountTypeReference.keepSynced(true);
+
+        accountTypeReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful()) {
+                    if(task.getResult().exists()) {
+                        myAccountType = "student";
+                    }
+                    else {
+                        myAccountType = "facultyMember";
+                    }
+                    callback.onCallback(true);
                 }
             }
         });
@@ -109,7 +136,7 @@ public class AllCoursesActivity extends AppCompatActivity {
                                             boolean isMember = (boolean) data;
                                             courseData.put("isMember", String.valueOf(isMember));
                                             courseGroups.add(courseData);
-                                            allCourseGroupAdapter = new AllCoursesGroupAdapter(AllCoursesActivity.this, courseGroups, selectedSession);
+                                            allCourseGroupAdapter = new AllCoursesGroupAdapter(AllCoursesActivity.this, courseGroups, selectedSession, myAccountType);
                                             courseGroupRecyclerView.setAdapter(allCourseGroupAdapter);
                                         }
                                     }
