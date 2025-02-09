@@ -88,6 +88,7 @@ public class AddRoutineActivity extends AppCompatActivity {
 
                     btnAdd.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
+                    Toast.makeText(AddRoutineActivity.this, "Adding routine. This may take some time.", Toast.LENGTH_SHORT).show();
 
                     deleteCurrentRoutine(sessionData.entrySet().iterator().next().getKey(), new CompletionCallback() {
                         @Override
@@ -156,6 +157,7 @@ public class AddRoutineActivity extends AppCompatActivity {
                                 }
                                 else {
                                     getData(googleSheetUrl, sessionId);
+                                    Toast.makeText(AddRoutineActivity.this, "Adding routine. This may take some time.", Toast.LENGTH_SHORT).show();
                                 }
                             }
                             else {
@@ -184,57 +186,57 @@ public class AddRoutineActivity extends AppCompatActivity {
 
     void callApi(int index, String accessToken, String spreadsheetId, String sheetsApiUrl, OkHttpClient client, String sessionId, String googleSheetUrl) {
 
-        String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-        String range = days[index]+"!B2:J52";
-        String url = sheetsApiUrl+spreadsheetId+"/values/"+range;
+        try {
 
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("Authorization", "Bearer "+accessToken)
-                .build();
+            String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+            String range = days[index]+"!B2:Z100";
+            String url = sheetsApiUrl+spreadsheetId+"/values/"+range;
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                btnAdd.setVisibility(View.VISIBLE);
-                progressBar.setVisibility(View.GONE);
-                e.printStackTrace();
-            }
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Authorization", "Bearer "+accessToken)
+                    .build();
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    btnAdd.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
+                    e.printStackTrace();
+                }
 
-                if(response.isSuccessful()) {
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
 
-                    String responseData = response.body().string();
-                    responses.put(index, responseData);
+                    if(response.isSuccessful()) {
 
-                    if(responses.size()==7) {
-                        insertIntoDatabase(sessionId, googleSheetUrl);
+                        String responseData = response.body().string();
+                        responses.put(index, responseData);
+
+                        if(responses.size()==7) {
+                            insertIntoDatabase(sessionId, googleSheetUrl);
+                        }
                     }
+                    else {
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            btnAdd.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                btnAdd.setVisibility(View.VISIBLE);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+
+                        System.err.println("Request failed: " + response.code());
+                    }
                 }
-                else {
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            btnAdd.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.GONE);
-                        }
-                    });
-
-                    System.err.println("Request failed: " + response.code());
-                }
-            }
-        });
+            });
+        }
+        catch(Exception e) {
+            Toast.makeText(AddRoutineActivity.this, "Failed to fetch data!", Toast.LENGTH_SHORT).show();
+            btnAdd.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     String getAccessToken() {
@@ -276,6 +278,8 @@ public class AddRoutineActivity extends AppCompatActivity {
         HashMap<String, HashMap<String, HashMap<String, HashMap<String, Object>>>> routineData = new HashMap<>();
         HashMap<String, HashMap<String, HashMap<String, HashMap<String, Object>>>> facultyRoutineDetails = new HashMap<>();
         HashMap<String, HashMap<String, HashMap<String, Object>>> coursesData = new HashMap<>();
+        HashMap<String, HashMap<String, HashMap<String, Object>>> allocatedRoomsData = new HashMap<>();
+        HashMap<String, Object> allRooms = new HashMap<>();
 
         for(int i=0; i<7; i++) {
 
@@ -304,35 +308,103 @@ public class AddRoutineActivity extends AppCompatActivity {
                 for(int j=1; j<jsonArray.length(); j++) {
 
                     HashMap<String, Object> timeRange = new HashMap<>();
-
                     JSONArray data = jsonArray.getJSONArray(j);
-                    String batch = String.valueOf(data.get(0));
-                    String section = String.valueOf(data.get(1));
+
+                    if(data.isNull(0) || !Pattern.compile("\\d{1,2}\\+?(\\d{1,2})?").matcher(String.valueOf(data.get(0)).trim()).find()) {
+                        break;
+                    }
+
+                    String batch = String.valueOf(data.get(0)).trim();
+                    String[] batches = batch.split("\\+");
+
+                    if(batches.length>1 && routineData.containsKey(batches[1]+"+"+batches[0])) {
+                        batch = batches[1]+"+"+batches[0];
+                    }
+
+                    String section;
+
+                    if(data.isNull(1) || String.valueOf(data.get(1)).trim().equals("")) {
+
+                        if(routineData.containsKey(batch) && routineData.get(batch)!=null && !routineData.get(batch).isEmpty()) {
+                            section = routineData.get(batch).keySet().iterator().next();
+                        }
+                        else {
+                            section = "A";
+                        }
+                    }
+                    else {
+                        section = String.valueOf(data.get(1));
+                    }
 
                     for(int k=2; k<times.size()+2; k++) {
 
                         HashMap<String, Object> routineDetails = new HashMap<>();
+                        HashMap<String, Object> facultyRoutineDetail = new HashMap<>();
 
-                        if(!data.isNull(k)) {
+                        if(!data.isNull(k) && !String.valueOf(data.get(k)).trim().equals("")) {
 
                             String[] parts = String.valueOf(data.get(k)).trim().split("\\s+");
 
-                            if(parts.length==3) {
+                            if(Pattern.compile("[A-Za-z0-9]{2,}").matcher(parts[0].trim()).find()) {
 
-                                routineDetails.put("courseCode", parts[0]);
-                                routineDetails.put("acronym", parts[1]);
-                                routineDetails.put("room", parts[2]);
-
-                                HashMap<String, Object> facultyRoutineDetail = new HashMap<>();
                                 facultyRoutineDetail.put("courseCode", parts[0]);
-                                facultyRoutineDetail.put("room", parts[2]);
                                 facultyRoutineDetail.put("batch", batch);
                                 facultyRoutineDetail.put("section", section);
+                                routineDetails.put("courseCode", parts[0]);
 
-                                facultyRoutineDetails
-                                        .computeIfAbsent(parts[1], l -> new HashMap<>())
-                                        .computeIfAbsent(days[index], l -> new HashMap<>())
-                                        .put(times.get(k-2), facultyRoutineDetail);
+                                if(Pattern.compile("(\\d{1,2}:\\d{2}[ap]m)-").matcher(times.get(k-2)).find()) {
+
+                                    // For online classes
+
+                                    if(parts.length==3 && Pattern.compile("[0-9A-Z-.]+").matcher(parts[2]).find()) {
+
+                                        routineDetails.put("room", parts[2]);
+                                        facultyRoutineDetail.put("room", parts[2]);
+
+                                        if(!parts[parts.length-1].trim().equals("Break")) {
+                                            parts[2] = parts[2].trim().replace('.', '_').toUpperCase();
+                                            allRooms.put(parts[2].trim(), true);
+                                        }
+                                    }
+
+                                    routineDetails.put("acronym", parts[1]);
+                                }
+                                else {
+
+                                    // For offline classes
+
+                                    if(Pattern.compile("[0-9A-Z-.]+").matcher(parts[parts.length-1]).find()) {
+
+                                        routineDetails.put("room", parts[parts.length-1]);
+                                        facultyRoutineDetail.put("room", parts[parts.length-1]);
+
+                                        if(!parts[parts.length-1].trim().equals("Break")) {
+
+                                            parts[parts.length-1] = parts[parts.length-1].trim().replace('.', '_').toUpperCase();
+                                            allRooms.put(parts[parts.length-1].trim(), true);
+
+                                            allocatedRoomsData
+                                                    .computeIfAbsent(days[index], l -> new HashMap<>())
+                                                    .computeIfAbsent(times.get(k-2), l -> new HashMap<>())
+                                                    .put(parts[parts.length-1].trim(), true);
+                                        }
+                                    }
+
+                                    for(int l=1; l<parts.length-1; l++) {
+
+                                        if(Pattern.compile("^[A-Z]+$").matcher(parts[l]).find()) {
+
+                                            routineDetails.put("acronym", parts[l]);
+
+                                            facultyRoutineDetails
+                                                    .computeIfAbsent(parts[l], m -> new HashMap<>())
+                                                    .computeIfAbsent(days[index], m -> new HashMap<>())
+                                                    .put(times.get(k-2), facultyRoutineDetail);
+
+                                            break;
+                                        }
+                                    }
+                                }
 
                                 coursesData
                                         .computeIfAbsent(parts[0], l -> new HashMap<>())
@@ -359,22 +431,27 @@ public class AddRoutineActivity extends AppCompatActivity {
         String routineUrlKey = rootReference.child("routineUrl").child(String.valueOf(departmentId)).push().getKey();
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put("courses/"+departmentId+"/" + sessionId, coursesData);
-        updates.put("routine/"+departmentId+"/" + sessionId, routineData);
+        updates.put("courses/"+departmentId+"/"+sessionId, coursesData);
+        updates.put("routine/"+departmentId+"/"+sessionId, routineData);
         updates.put("facultyRoutine/"+sessionId, facultyRoutineDetails);
         updates.put("routineUrl/"+departmentId+"/"+routineUrlKey+"/"+sessionId, googleSheetUrl);
         updates.put("sessions/"+departmentId+"/"+sessionsKey, sessionId);
+        updates.put("allRooms/"+sessionId, allRooms);
+        updates.put("allocatedRooms/"+sessionId, allocatedRoomsData);
 
         rootReference.updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+
                 if(task.isSuccessful()) {
-                    System.out.println("All updates completed successfully!");
+                    Toast.makeText(AddRoutineActivity.this, "Routine uploaded!", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 else {
-                    System.out.println("Failed! " + task.getException());
+                    Toast.makeText(AddRoutineActivity.this, String.valueOf(task.getException()), Toast.LENGTH_SHORT).show();
                 }
+                btnAdd.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }
@@ -445,21 +522,28 @@ public class AddRoutineActivity extends AppCompatActivity {
 
     void checkDuplicateSession(String sessionId, CompletionCallback callback) {
 
-        DatabaseReference sessionReference = rootReference.child("sessions").child(sessionId);
+        DatabaseReference sessionReference = rootReference.child("sessions");
 
-        sessionReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        sessionReference.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful() && task.getResult().exists()) {
-                    callback.onCallback(null);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                sessionReference.removeEventListener(this);
+
+                for(DataSnapshot s : snapshot.getChildren()) {
+                    for(DataSnapshot s2 : s.getChildren()) {
+                        if(String.valueOf(s2.getValue()).equals(sessionId)) {
+                            callback.onCallback(null);
+                        }
+                    }
                 }
-                else {
-                    callback.onCallback(true);
-                }
+
+                callback.onCallback(true);
             }
-        }).addOnFailureListener(new OnFailureListener() {
+
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onCancelled(@NonNull DatabaseError error) {
+                sessionReference.removeEventListener(this);
                 callback.onCallback(null);
             }
         });

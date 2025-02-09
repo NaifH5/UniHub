@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -22,7 +21,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,14 +37,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
-public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class DepartmentFragment extends Fragment {
 
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
     FirebaseUser user = mAuth.getCurrentUser();
-    SwipeRefreshLayout swipeRefreshLayout;
     TextView departmentName;
     RecyclerView postRecyclerView, routineRecyclerView;
     PostAdapter postAdapter;
@@ -56,8 +52,8 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
     Button btnPost, btnPosts, btnRoutine;
     ArrayList<Map<String, String>> routine = new ArrayList<>();
     ArrayList<Map<String, Object>> posts = new ArrayList<>();
+    Map<String, Object> myDetails = new HashMap<>();
     String myAccountType="student";
-    long departmentId=1;
 
     public DepartmentFragment() {}
 
@@ -66,7 +62,6 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
 
         View view = inflater.inflate(R.layout.fragment_department, container, false);
 
-        swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         postRecyclerView = view.findViewById(R.id.post_recycler_view);
         departmentName = view.findViewById(R.id.department_name);
         routineRecyclerView = view.findViewById(R.id.routine_recycler_view);
@@ -76,14 +71,13 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
         btnRoutine = view.findViewById(R.id.text_routine);
         departmentImage = view.findViewById(R.id.department_image);
 
-        postRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         routineRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         btnAbout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), DepartmentInformationActivity.class);
-                intent.putExtra("departmentId", departmentId);
+                intent.putExtra("departmentId", (Long) myDetails.get("departmentId"));
                 getContext().startActivity(intent);
             }
         });
@@ -102,14 +96,14 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
 
                         if(item.getItemId()==R.id.create_post) {
                             Intent intent = new Intent(getContext(), CreatePostActivity.class);
-                            intent.putExtra("accountType", myAccountType);
-                            intent.putExtra("departmentId", departmentId);
+                            intent.putExtra("accountType", String.valueOf(myDetails.get("accountType")));
+                            intent.putExtra("departmentId", (Long) myDetails.get("departmentId"));
                             intent.putExtra("myId", user.getUid());
                             requireContext().startActivity(intent);
                         }
                         else if(item.getItemId()==R.id.routine) {
                             Intent intent = new Intent(getContext(), AddRoutineActivity.class);
-                            intent.putExtra("departmentId", departmentId);
+                            intent.putExtra("departmentId", (Long) myDetails.get("departmentId"));
                             requireContext().startActivity(intent);
                         }
 
@@ -153,28 +147,51 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
             }
         });
 
-        getMyAccountType(new CompletionCallback() {
+        getMyAccountType();
+        return view;
+    }
+
+    void getMyAccountType() {
+
+        DatabaseReference studentRef = rootReference.child("student").child(user.getUid());
+        DatabaseReference facultyRef = rootReference.child("facultyMember").child(user.getUid());
+
+        studentRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
-            public void onCallback(Object data) {
-                if(data!=null) {
-                    getDepartmentId(new CompletionCallback() {
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful() && task.getResult().exists()) {
+                    getMyDetails(task.getResult(), "student");
+                }
+                else {
+                    facultyRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                         @Override
-                        public void onCallback(Object data) {
-                            if(data!=null) {
-                                departmentId = (long) data;
-                                setDepartmentName();
-                                getDepartmentImage();
-                                getPostIds();
-                                getRoutine();
-                                swipeRefreshLayout.setOnRefreshListener(DepartmentFragment.this);
+                        public void onComplete(@NonNull Task<DataSnapshot> task2) {
+                            if(task2.isSuccessful() && task2.getResult().exists()) {
+                                getMyDetails(task2.getResult(), "facultyMember");
                             }
                         }
                     });
                 }
             }
         });
+    }
 
-        return view;
+    void getMyDetails(DataSnapshot snapshot, String accountType) {
+
+        if(snapshot.exists()) {
+
+            myDetails = (Map<String, Object>) snapshot.getValue();
+            myDetails.put("accountType", accountType);
+
+            postRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            postAdapter = new PostAdapter(getContext(), posts, String.valueOf(myDetails.get("accountType")));
+            postRecyclerView.setAdapter(postAdapter);
+
+            setDepartmentName();
+            getDepartmentImage();
+            getPosts();
+            getRoutine();
+        }
     }
 
     void setDepartmentName() {
@@ -183,13 +200,203 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                 "Computer Science & Engineering", "Electrical and Electronics Engineering", "English",
                 "Islamic Studies", "Law", "Public Health", "Tourism & Hospitality Management"};
 
-        String name = "Department of "+departments[(int) departmentId];
+        int departmentId = ((Long) myDetails.get("departmentId")).intValue();
+        String name = "Department of " + departments[departmentId];
         departmentName.setText(name);
+    }
+
+    void getPosts() {
+
+        DatabaseReference postReference = rootReference.child("departmentPosts").child(String.valueOf(myDetails.get("departmentId")));
+        postReference.keepSynced(true);
+
+        postReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(posts.size()>0) {
+                    posts.clear();
+                }
+
+                if(snapshot.exists()) {
+                    for(DataSnapshot s : snapshot.getChildren()) {
+                        getPostDetails(s.getKey());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void getPostDetails(String postId) {
+
+        DatabaseReference postReference = rootReference.child("posts").child(postId);
+        postReference.keepSynced(true);
+
+        postReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                postReference.removeEventListener(this);
+
+                if(snapshot.exists()) {
+
+                    Map<String, Object> postDetails = (Map<String, Object>) snapshot.getValue();
+                    boolean approved = (boolean) postDetails.get("approval");
+
+                    if(!approved && String.valueOf(myDetails.get("accountType")).equals("student") && !String.valueOf(postDetails.get("posterId")).equals(user.getUid())) {
+                        return;
+                    }
+
+                    postDetails.put("postId", postId);
+                    getMedias(postDetails);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                postReference.removeEventListener(this);
+            }
+        });
+    }
+
+    void getMedias(Map<String, Object> postDetails) {
+
+        DatabaseReference mediaReference = rootReference.child("medias").child(String.valueOf(postDetails.get("postId")));
+
+        mediaReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists()) {
+
+                    ArrayList<String> medias = new ArrayList<>();
+
+                    for(DataSnapshot s : snapshot.getChildren()) {
+                        medias.add(String.valueOf(s.getValue()));
+                        if(medias.size()==snapshot.getChildrenCount()) {
+                            postDetails.put("medias", medias);
+                            getPosterDetails(postDetails);
+                        }
+                    }
+                }
+                else {
+                    getPosterDetails(postDetails);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void getPosterDetails(Map<String, Object> postDetails) {
+
+        String accountType = String.valueOf(postDetails.get("accountType"));
+        String posterId = String.valueOf(postDetails.get("posterId"));
+        DatabaseReference posterReference = rootReference.child(accountType).child(posterId);
+        posterReference.keepSynced(true);
+
+        posterReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                if(task.isSuccessful() && task.getResult().exists()) {
+
+                    Map<String, Object> posterDetails = (Map<String, Object>) task.getResult().getValue();
+                    postDetails.putAll(posterDetails);
+                    String time = getTime((Long)postDetails.get("time"))+" "+getDate((Long)postDetails.get("time"));
+                    postDetails.put("time", time);
+                    boolean postExists = false;
+
+                    for(int i=0; i<posts.size(); i++) {
+                        if(String.valueOf(posts.get(i).get("postId")).equals(String.valueOf(postDetails.get("postId")))) {
+                            posts.set(i, postDetails);
+                            postExists = true;
+                            break;
+                        }
+                    }
+
+                    if(!postExists) {
+                        getCommentCount(postDetails);
+                    }
+                }
+            }
+        });
+    }
+
+    void getCommentCount(Map<String, Object> postDetails) {
+
+        DatabaseReference commentReference = rootReference.child("comments").child(String.valueOf(postDetails.get("postId")));
+        commentReference.keepSynced(true);
+
+        commentReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                postDetails.put("commentCount", snapshot.getChildrenCount());
+                boolean postExists = false;
+
+                for(int i=0; i<posts.size(); i++) {
+                    if(String.valueOf(posts.get(i).get("postId")).equals(String.valueOf(postDetails.get("postId")))) {
+                        posts.set(i, postDetails);
+                        postExists = true;
+                        break;
+                    }
+                }
+
+                if(!postExists) {
+                    posts.add(postDetails);
+                }
+
+                postAdapter = new PostAdapter(getContext(), posts, String.valueOf(myDetails.get("accountType")));
+                postRecyclerView.setAdapter(postAdapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void getRoutine() {
+
+        DatabaseReference routineReference = rootReference.child("routineUrl").child(String.valueOf(myDetails.get("departmentId")));
+        routineReference.keepSynced(true);
+
+        routineReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists()) {
+
+                    if(routine.size()>0) {
+                        routine.clear();
+                    }
+
+                    for(DataSnapshot s : snapshot.getChildren()) {
+
+                        Map<String, String> map = (Map<String, String>) s.getValue();
+                        routine.add(map);
+
+                        if(routine.size()==snapshot.getChildrenCount()) {
+                            Collections.reverse(routine);
+                            routineAdapter = new RoutineAdapter(getContext(), routine, myAccountType, (Long) myDetails.get("departmentId"));
+                            routineRecyclerView.setAdapter(routineAdapter);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
     }
 
     void getDepartmentImage() {
 
-        DatabaseReference imageReference = rootReference.child("departmentImage").child(String.valueOf(departmentId)).child("image");
+        DatabaseReference imageReference = rootReference.child("departmentImage").child(String.valueOf(myDetails.get("departmentId"))).child("image");
         imageReference.keepSynced(true);
 
         imageReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -212,276 +419,6 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
                 .into(departmentImage);
     }
 
-    void getPostIds() {
-
-        DatabaseReference depPostsReference = rootReference.child("departmentPosts").child(String.valueOf(departmentId));
-        depPostsReference.keepSynced(true);
-
-        depPostsReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                depPostsReference.removeEventListener(this);
-
-                if(snapshot.exists()) {
-
-                    if(posts.size()>0) {
-                        posts.clear();
-                    }
-
-                    for(DataSnapshot s : snapshot.getChildren()) {
-
-                        Map<String, Object> post = new HashMap<>();
-                        post.put("postId", s.getKey());
-                        post.put("departmentId", departmentId);
-                        posts.add(post);
-
-                        if(posts.size()==snapshot.getChildrenCount()) {
-                            getPostDetails(0);
-                        }
-                    }
-                }
-                else {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                depPostsReference.removeEventListener(this);
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-    }
-
-    void getPostDetails(int index) {
-
-        DatabaseReference postsReference = rootReference.child("posts").child(String.valueOf(posts.get(index).get("postId")));
-        postsReference.keepSynced(true);
-
-        postsReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-
-                if(task.isSuccessful() && task.getResult().getValue()!=null) {
-
-                    Map<String, Object> postDetails = (Map<String, Object>) task.getResult().getValue();
-                    String time = getTime((Long)postDetails.get("time"))+" "+getDate((Long)postDetails.get("time"));
-
-                    if(!((Boolean) postDetails.get("approval")) && !String.valueOf(postDetails.get("posterId")).equals(user.getUid()) && !Objects.equals(myAccountType, "facultyMember")) {
-
-                        posts.remove(index);
-
-                        if(index<posts.size()) {
-                            getPostDetails(index+1);
-                        }
-                        else {
-                            getPosterDetails(0);
-                        }
-                    }
-                    else {
-
-                        posts.get(index).put("time", time);
-                        posts.get(index).put("approval", postDetails.get("approval"));
-                        posts.get(index).put("accountType", postDetails.get("accountType"));
-                        posts.get(index).put("text", postDetails.get("text"));
-                        posts.get(index).put("posterId", postDetails.get("posterId"));
-
-
-                        if(index+1<posts.size()) {
-                            getPostDetails(index+1);
-                        }
-                        else {
-                            getPosterDetails(0);
-                        }
-                    }
-                }
-                else {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-    }
-
-    void getPosterDetails(int index) {
-
-        DatabaseReference posterReference = rootReference.child(String.valueOf(posts.get(index).get("accountType"))).child(String.valueOf(posts.get(index).get("posterId")));
-        posterReference.keepSynced(true);
-
-        posterReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-
-                if(task.isSuccessful() && task.getResult().getValue()!=null) {
-
-                    Map<String, Object> posterDetails = (Map<String, Object>) task.getResult().getValue();
-                    posts.get(index).put("fullName", posterDetails.get("fullName"));
-
-                    if(posterDetails.containsKey("profilePicture")) {
-                        posts.get(index).put("profilePicture", posterDetails.get("profilePicture"));
-                    }
-
-                    if(index<posts.size()-1) {
-                        getPosterDetails(index+1);
-                    }
-                    else {
-                        getCommentCount(0);
-                    }
-                }
-                else {
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-    }
-
-    void getCommentCount(int index) {
-
-        DatabaseReference commentReference = rootReference.child("comments").child(String.valueOf(posts.get(index).get("postId")));
-        commentReference.keepSynced(true);
-
-        commentReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                commentReference.removeEventListener(this);
-                posts.get(index).put("commentCount", snapshot.getChildrenCount());
-
-                if(index<posts.size()-1) {
-                    getCommentCount(index+1);
-                }
-                else {
-                    postAdapter = new PostAdapter(getContext(), myAccountType, posts, new CompletionCallback() {
-                        @Override
-                        public void onCallback(Object data) {
-                            onRefresh();
-                        }
-                    });
-                    postRecyclerView.setAdapter(postAdapter);
-                    swipeRefreshLayout.setRefreshing(false);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                commentReference.removeEventListener(this);
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-    }
-
-    void getMyAccountType(CompletionCallback callback) {
-
-        DatabaseReference accountTypeReference = rootReference.child("student").child(user.getUid());
-        accountTypeReference.keepSynced(true);
-
-        accountTypeReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful()) {
-                    if(task.getResult().exists()) {
-                        myAccountType = "student";
-                    }
-                    else {
-                        myAccountType = "facultyMember";
-                    }
-                    callback.onCallback(true);
-                }
-            }
-        });
-    }
-
-    void getDepartmentId(CompletionCallback callback) {
-
-        DatabaseReference depIdReference = rootReference.child("student").child(user.getUid()).child("departmentId");
-        depIdReference.keepSynced(true);
-
-        depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful() && task.getResult().getValue()!=null) {
-                    callback.onCallback(task.getResult().getValue());
-                }
-                else {
-
-                    DatabaseReference depIdReference = rootReference.child("facultyMember").child(user.getUid()).child("departmentId");
-                    depIdReference.keepSynced(true);
-
-                    depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if(task.isSuccessful() && task.getResult().getValue()!=null) {
-                                callback.onCallback(task.getResult().getValue());
-                            }
-                            else {
-                                callback.onCallback(null);
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            callback.onCallback(null);
-                        }
-                    });
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                callback.onCallback(null);
-            }
-        });
-    }
-
-    void getRoutine() {
-
-        DatabaseReference routineReference = rootReference.child("routineUrl").child(String.valueOf(departmentId));
-        routineReference.keepSynced(true);
-
-        routineReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                routineReference.removeEventListener(this);
-
-                if(snapshot.exists()) {
-
-                    System.out.println("snapshot exists");
-                    if(routine.size()>0) {
-                        routine.clear();
-                    }
-
-                    for(DataSnapshot s : snapshot.getChildren()) {
-
-                        Map<String, String> map = (Map<String, String>) s.getValue();
-                        routine.add(map);
-
-                        if(routine.size()==snapshot.getChildrenCount()) {
-                            Collections.reverse(routine);
-                            routineAdapter = new RoutineAdapter(getContext(), routine, myAccountType, departmentId);
-                            routineRecyclerView.setAdapter(routineAdapter);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                routineReference.removeEventListener(this);
-            }
-        });
-    }
-
     String getDate(long time) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy").withZone(ZoneId.systemDefault());
@@ -494,12 +431,5 @@ public class DepartmentFragment extends Fragment implements SwipeRefreshLayout.O
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a").withZone(ZoneId.systemDefault());
         String formattedTime = formatter.format(Instant.ofEpochMilli(time));
         return formattedTime;
-    }
-
-    @Override
-    public void onRefresh() {
-        getDepartmentImage();
-        getPostIds();
-        getRoutine();
     }
 }

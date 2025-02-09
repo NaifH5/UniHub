@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -33,6 +34,7 @@ public class QueriesActivity extends AppCompatActivity {
     RecyclerView queriesRecyclerView;
     CommentsAdapter queriesAdapter;
     EditText text;
+    TextView emptyMessage;
     ArrayList<Map<String, Object>> queries = new ArrayList<>();
     String courseGroupId, announcementId;
 
@@ -48,6 +50,7 @@ public class QueriesActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back);
         text = findViewById(R.id.text_message);
         btnSend = findViewById(R.id.btn_send);
+        emptyMessage = findViewById(R.id.empty_message);
 
         queriesRecyclerView = findViewById(R.id.queries_recycler_view);
         queriesRecyclerView.setLayoutManager(new LinearLayoutManager(QueriesActivity.this));
@@ -101,6 +104,9 @@ public class QueriesActivity extends AppCompatActivity {
 
                                 if(task.isSuccessful() && task.getResult().exists()) {
 
+                                    emptyMessage.setVisibility(View.GONE);
+                                    queriesRecyclerView.setVisibility(View.VISIBLE);
+
                                     Map<String, Object> user = (Map<String, Object>) task.getResult().getValue();
                                     data.put("posterName", user.get("fullName"));
 
@@ -125,6 +131,9 @@ public class QueriesActivity extends AppCompatActivity {
 
                                             if(task.isSuccessful() && task.getResult().exists()) {
 
+                                                emptyMessage.setVisibility(View.GONE);
+                                                queriesRecyclerView.setVisibility(View.VISIBLE);
+
                                                 Map<String, Object> user = (Map<String, Object>) task.getResult().getValue();
                                                 data.put("posterName", user.get("fullName"));
 
@@ -137,6 +146,10 @@ public class QueriesActivity extends AppCompatActivity {
                                                 if(queries.size()==snapshot.getChildrenCount()) {
                                                     queriesAdapter.notifyDataSetChanged();
                                                 }
+                                            }
+                                            else {
+                                                emptyMessage.setVisibility(View.VISIBLE);
+                                                queriesRecyclerView.setVisibility(View.GONE);
                                             }
                                         }
                                     });

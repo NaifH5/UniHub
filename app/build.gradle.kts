@@ -49,7 +49,6 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging:24.1.0") // For notifications
     implementation("com.squareup.okhttp3:okhttp:4.12.0") // For API calls
     implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0") // For Google Credentials
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01") // For refreshing department posts
 
     // Default dependencies:
     implementation("androidx.appcompat:appcompat:1.7.0")

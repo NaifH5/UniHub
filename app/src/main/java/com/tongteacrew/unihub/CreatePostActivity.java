@@ -145,17 +145,8 @@ public class CreatePostActivity extends AppCompatActivity {
                 String msg = String.valueOf(text.getText());
 
                 if(postId==null) {
-
                     String postId = getPostId();
-
-                    updateDepartmentPosts(postId, new CompletionCallback() {
-                        @Override
-                        public void onCallback(Object data) {
-                            if((Boolean) data) {
-                                createPost(postId, msg);
-                            }
-                        }
-                    });
+                    createPost(postId, msg);
                 }
                 else {
                     postLayout.setVisibility(View.GONE);
@@ -185,24 +176,6 @@ public class CreatePostActivity extends AppCompatActivity {
         });
     }
 
-    void updateDepartmentPosts(String postId, CompletionCallback callback) {
-
-        DatabaseReference updatePostReference = rootReference.child("departmentPosts").child(String.valueOf(departmentId));
-        updatePostReference.keepSynced(true);
-
-        updatePostReference.child(postId).setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                callback.onCallback(true);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                callback.onCallback(true);
-            }
-        });
-    }
-
     String getPostId() {
         DatabaseReference createPostReference = rootReference.child("departments").child(String.valueOf(departmentId));
         return createPostReference.push().getKey();
@@ -227,31 +200,36 @@ public class CreatePostActivity extends AppCompatActivity {
             public void onCallback(Object data) {
 
                 post.put("time", data);
-                DatabaseReference createPostReference = rootReference.child("posts").child(postId);
-                createPostReference.keepSynced(true);
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("departmentPosts/"+departmentId+"/"+postId, true);
+                updates.put("posts/"+postId, post);
 
-                createPostReference.setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
+                rootReference.updateChildren(updates).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
-                        if(files.size()==0) {
-                            postLayout.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.GONE);
-                            finish();
-                        }
+                        if(task.isSuccessful()) {
 
-                        for(int i=0; i<files.size(); i++) {
+                            if(files.size()==0) {
+                                postLayout.setVisibility(View.VISIBLE);
+                                progressBar.setVisibility(View.GONE);
+                                finish();
+                            }
+                            else {
+                                for(int i = 0; i < files.size(); i++) {
 
-                            final int fileNumber = i+1;
+                                    final int fileNumber = i + 1;
 
-                            compressImage(files.get(i), new CompletionCallback() {
-                                @Override
-                                public void onCallback(Object data) {
-                                    if(data!=null) {
-                                        uploadFile((Uri) data, postId, fileNumber);
-                                    }
+                                    compressImage(files.get(i), new CompletionCallback() {
+                                        @Override
+                                        public void onCallback(Object data) {
+                                            if(data != null) {
+                                                uploadFile((Uri) data, postId, fileNumber);
+                                            }
+                                        }
+                                    });
                                 }
-                            });
+                            }
                         }
                     }
                 });

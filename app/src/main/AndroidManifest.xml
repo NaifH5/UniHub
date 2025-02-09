@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Permissions -->
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -18,7 +16,10 @@
         tools:targetApi="34">
 
         <!-- Activities -->
-
+        <activity
+            android:name=".UnallocatedRoomsActivity"
+            android:exported="false"
+            android:theme="@style/UniHubTheme" />
         <activity
             android:name=".AllCoursesActivity"
             android:exported="false"
@@ -116,10 +117,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Messaging service class -->
-
+        </activity> <!-- Messaging service class -->
         <service
             android:name=".MessagingService"
             android:exported="false">
@@ -127,6 +125,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
     </application>
+
 </manifest>

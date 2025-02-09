@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/darkShade4"
+    tools:context=".UnallocatedRoomsActivity" >
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/darkShade4"
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <LinearLayout
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="@drawable/shape_circle"
+            android:backgroundTint="@color/white" >
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:padding="10dp"
+                android:layout_gravity="center"
+                android:background="#00000000"
+                android:scaleType="fitXY"
+                android:src="@drawable/icon_back"
+                app:tint="@color/darkShade4" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:text="Unallocated Rooms"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:layout_alignParentBottom="true" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:backgroundTint="@color/darkShade4" >
+
+            <TextView
+                android:id="@+id/sunday_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_round_rectangle"
+                android:backgroundTint="@color/darkShade1"
+                android:gravity="center"
+                android:text="Sunday"
+                android:textAlignment="center"
+                android:textColor="@color/darkShade4"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <GridView
+                android:id="@+id/sunday_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:layout_below="@+id/sunday_text_view"
+                android:fadeScrollbars="false"
+                android:horizontalSpacing="5dp"
+                android:numColumns="3"
+                android:scrollbarThumbVertical="@android:color/transparent"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp"
+                android:visibility="visible"
+                tools:listitem="@layout/card_unallocated_rooms" />
+
+            <TextView
+                android:id="@+id/monday_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/sunday_gridview"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_round_rectangle"
+                android:backgroundTint="@color/darkShade1"
+                android:gravity="center"
+                android:text="Monday"
+                android:textAlignment="center"
+                android:textColor="@color/darkShade4"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <GridView
+                android:id="@+id/monday_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:layout_below="@+id/monday_text_view"
+                android:fadeScrollbars="false"
+                android:horizontalSpacing="5dp"
+                android:numColumns="3"
+                android:scrollbarThumbVertical="@android:color/transparent"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp"
+                android:visibility="visible"
+                tools:listitem="@layout/card_unallocated_rooms" />
+
+            <TextView
+                android:id="@+id/tuesday_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/monday_gridview"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_round_rectangle"
+                android:backgroundTint="@color/darkShade1"
+                android:gravity="center"
+                android:text="Tuesday"
+                android:textAlignment="center"
+                android:textColor="@color/darkShade4"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <GridView
+                android:id="@+id/tuesday_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:layout_below="@+id/tuesday_text_view"
+                android:fadeScrollbars="false"
+                android:horizontalSpacing="5dp"
+                android:numColumns="3"
+                android:scrollbarThumbVertical="@android:color/transparent"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp"
+                android:visibility="visible"
+                tools:listitem="@layout/card_unallocated_rooms" />
+
+            <TextView
+                android:id="@+id/wednesday_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/tuesday_gridview"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_round_rectangle"
+                android:backgroundTint="@color/darkShade1"
+                android:gravity="center"
+                android:text="Wednesday"
+                android:textAlignment="center"
+                android:textColor="@color/darkShade4"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <GridView
+                android:id="@+id/wednesday_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:layout_below="@+id/wednesday_text_view"
+                android:fadeScrollbars="false"
+                android:horizontalSpacing="5dp"
+                android:numColumns="3"
+                android:scrollbarThumbVertical="@android:color/transparent"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp"
+                android:visibility="visible"
+                tools:listitem="@layout/card_unallocated_rooms" />
+
+            <TextView
+                android:id="@+id/thursday_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/wednesday_gridview"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_round_rectangle"
+                android:backgroundTint="@color/darkShade1"
+                android:gravity="center"
+                android:text="Thursday"
+                android:textAlignment="center"
+                android:textColor="@color/darkShade4"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <GridView
+                android:id="@+id/thursday_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:layout_below="@+id/thursday_text_view"
+                android:fadeScrollbars="false"
+                android:horizontalSpacing="5dp"
+                android:numColumns="3"
+                android:scrollbarThumbVertical="@android:color/transparent"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp"
+                android:visibility="visible"
+                tools:listitem="@layout/card_unallocated_rooms" />
+
+            <TextView
+                android:id="@+id/friday_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/thursday_gridview"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_round_rectangle"
+                android:backgroundTint="@color/darkShade1"
+                android:gravity="center"
+                android:text="Friday"
+                android:textAlignment="center"
+                android:textColor="@color/darkShade4"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <GridView
+                android:id="@+id/friday_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:layout_below="@+id/friday_text_view"
+                android:fadeScrollbars="false"
+                android:horizontalSpacing="5dp"
+                android:numColumns="3"
+                android:scrollbarThumbVertical="@android:color/transparent"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp"
+                android:visibility="visible"
+                tools:listitem="@layout/card_unallocated_rooms" />
+
+            <TextView
+                android:id="@+id/saturday_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_below="@+id/friday_gridview"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/shape_round_rectangle"
+                android:backgroundTint="@color/darkShade1"
+                android:gravity="center"
+                android:text="Saturday"
+                android:textAlignment="center"
+                android:textColor="@color/darkShade4"
+                android:textStyle="bold"
+                android:visibility="visible" />
+
+            <GridView
+                android:id="@+id/saturday_gridview"
+                android:layout_width="match_parent"
+                android:layout_height="1000dp"
+                android:layout_below="@+id/saturday_text_view"
+                android:fadeScrollbars="false"
+                android:horizontalSpacing="5dp"
+                android:numColumns="3"
+                android:scrollbarThumbVertical="@android:color/transparent"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="5dp"
+                android:visibility="visible"
+                tools:listitem="@layout/card_unallocated_rooms" />
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

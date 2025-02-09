@@ -1,21 +1,22 @@
 package com.tongteacrew.unihub;
 
+import static java.lang.Math.ceil;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,7 +28,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -38,13 +38,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class HomeFragment extends Fragment {
 
@@ -54,7 +57,7 @@ public class HomeFragment extends Fragment {
     LinearLayout scheduleLayout;
     RelativeLayout routineLayout;
     Spinner sessionSpinner;
-    Button btnCourses;
+    Button btnCourses, btnUnallocatedRooms;
     ImageButton btnExpandRoutine;
     TextView emptySchedule, sundayTextView, mondayTextView, tuesdayTextView, wednesdayTextView, thursdayTextView, fridayTextView, saturdayTextView;
     View gradientView;
@@ -65,10 +68,8 @@ public class HomeFragment extends Fragment {
     Map<String, ArrayList<Map<String, Object>>> routineList = new HashMap<>();
     ArrayList<String> sessions = new ArrayList<>();
     Map<String, Object> myDetails = new HashMap<>();
-    long departmentId=1;
     String selectedSession="";
     boolean expandedRoutine = false;
-    int maxRoutineHeight=0;
 
     public HomeFragment() {}
 
@@ -79,6 +80,7 @@ public class HomeFragment extends Fragment {
 
         scheduleRecyclerView = view.findViewById(R.id.schedule_recycler_view);
         btnCourses = view.findViewById(R.id.btn_courses);
+        btnUnallocatedRooms = view.findViewById(R.id.btn_unallocated_rooms);
         sessionSpinner = view.findViewById(R.id.spinner_session);
         emptySchedule = view.findViewById(R.id.empty_schedule);
         scheduleLayout = view.findViewById(R.id.linearLayout10);
@@ -113,115 +115,239 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                setSelectedSession(sessions.get(position), new CompletionCallback() {
-                    @Override
-                    public void onCallback(Object data) {
-                        System.out.println("Session updated!");
-                    }
-                });
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
         btnExpandRoutine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if(!expandedRoutine) {
-                    ExpandRoutine(300);
+                    routineLayout.post(() -> {
+                        animateHeight(dpToPx(100), max(dpToPx(100), dpToPx(getLayoutHeight())));
+                    });
                 }
                 else {
-                    collapseRoutine(300);
+                    routineLayout.post(() -> {
+                        animateHeight(max(dpToPx(100), dpToPx(getLayoutHeight())), dpToPx(100));
+                    });
                 }
 
                 expandedRoutine = !expandedRoutine;
             }
         });
 
-        getDepartmentId(new CompletionCallback() {
+        btnUnallocatedRooms.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCallback(Object data) {
-                if(data!=null) {
-                    departmentId = (long) data;
-                    getSessionList(new CompletionCallback() {
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), UnallocatedRoomsActivity.class);
+                getContext().startActivity(intent);
+            }
+        });
+
+        scheduleRecyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                rv.getParent().requestDisallowInterceptTouchEvent(true);
+                return false;
+            }
+        });
+
+        getMyAccountType();
+        return view;
+    }
+
+    void getMyAccountType() {
+
+        DatabaseReference studentRef = rootReference.child("student").child(user.getUid());
+        DatabaseReference facultyRef = rootReference.child("facultyMember").child(user.getUid());
+
+        studentRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful() && task.getResult().exists()) {
+                    getMyDetails(task.getResult(), "student");
+                }
+                else {
+                    facultyRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                         @Override
-                        public void onCallback(Object data) {
-                            getSelectedSession(new CompletionCallback() {
-                                @Override
-                                public void onCallback(Object data) {
-                                    if(data!=null) {
-
-                                        getSchedule();
-
-                                        if(String.valueOf(myDetails.get("accountType")).equals("student")) {
-                                            getStudentRoutine();
-                                        }
-                                        else {
-                                            getFacultyRoutine();
-                                        }
-                                    }
-                                }
-                            });
+                        public void onComplete(@NonNull Task<DataSnapshot> task2) {
+                            if(task2.isSuccessful() && task2.getResult().exists()) {
+                                getMyDetails(task2.getResult(), "facultyMember");
+                            }
                         }
                     });
                 }
             }
         });
-
-        return view;
     }
 
-    void ExpandRoutine(int animDuration) {
-        int startingHeight = routineLayout.getHeight();
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) routineLayout.getLayoutParams();
-        params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-        routineLayout.setLayoutParams(params);
-        btnExpandRoutine.setRotation(90);
-        animateHeightChange(routineLayout, startingHeight, maxRoutineHeight, animDuration);
+    void getMyDetails(DataSnapshot snapshot, String accountType) {
+
+        if(snapshot.exists()) {
+            myDetails = (Map<String, Object>) snapshot.getValue();
+            myDetails.put("accountType", accountType);
+            observeSessions();
+        }
     }
 
-    void collapseRoutine(int animDuration) {
-        int startingHeight = routineLayout.getHeight();
-        int heightInPixels = (int) (100*getResources().getDisplayMetrics().density);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) routineLayout.getLayoutParams();
-        params.height = heightInPixels;
-        routineLayout.setLayoutParams(params);
-        btnExpandRoutine.setRotation(270);
-        animateHeightChange(routineLayout, startingHeight, heightInPixels, animDuration);
-    }
+    void observeSessions() {
 
-    private void animateHeightChange(final View view, int startHeight, int endHeight, int animDuration) {
+        Query sessionReference = rootReference.child("sessions").child(String.valueOf(myDetails.get("departmentId"))).limitToLast(3);
+        sessionReference.keepSynced(true);
 
-        ValueAnimator anim = ValueAnimator.ofInt(startHeight, endHeight);
-        anim.setDuration(animDuration);
-        anim.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        sessionReference.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onAnimationUpdate(@NonNull ValueAnimator valueAnimator) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                int animatedValue = (int) valueAnimator.getAnimatedValue();
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                params.height = animatedValue;
-                view.setLayoutParams(params);
-                float percentage = (float) ((animatedValue-startHeight))/(endHeight-startHeight);
+                sessions.clear();
 
-                if(endHeight>=startHeight) {
-                    float alpha = (float) max(0.5, 1.0-percentage);
-                    gradientView.setAlpha(alpha);
+                for(DataSnapshot s : snapshot.getChildren()) {
+                    sessions.add(String.valueOf(s.getValue()));
+                }
+
+                Collections.reverse(sessions);
+                updateSessionSpinner();
+                observeSelectedSession();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void setSpinnerListener() {
+
+        sessionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                setSelectedSession(sessions.get(position));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    void observeSelectedSession() {
+
+        DatabaseReference sessionRef = rootReference.child("selectedSessions").child(user.getUid());
+        sessionRef.keepSynced(true);
+
+        sessionRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists()) {
+                    selectedSession = snapshot.getValue(String.class);
+                    setSpinnerListener();
+                }
+                else if(!sessions.isEmpty()) {
+                    selectedSession = sessions.get(0);
+                    setSelectedSession(sessions.get(0));
+                }
+
+                updateSessionSpinnerSelection();
+                getSchedule();
+
+                if(String.valueOf(myDetails.get("accountType")).equals("student")) {
+                    getStudentRoutine();
                 }
                 else {
-                    gradientView.setAlpha(percentage);
+                    getFacultyRoutine();
                 }
             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    void setSelectedSession(String session) {
+        rootReference.child("selectedSessions").child(user.getUid()).setValue(session).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                selectedSession = session;
+                setSpinnerListener();
+            }
+        });
+    }
+
+    void updateSessionSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_sessions, sessions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sessionSpinner.setAdapter(adapter);
+    }
+
+    void updateSessionSpinnerSelection() {
+        if(selectedSession!=null && sessions.contains(selectedSession)) {
+            sessionSpinner.setSelection(sessions.indexOf(selectedSession));
+        }
+    }
+
+    void animateHeight(int startHeight, int endHeight) {
+
+        if(startHeight<=endHeight) {
+            btnExpandRoutine.setRotation(90);
+        }
+        else {
+            btnExpandRoutine.setRotation(270);
+        }
+
+        ValueAnimator valueAnimator = ValueAnimator.ofInt(startHeight, endHeight);
+        valueAnimator.setDuration(100);
+
+        valueAnimator.addUpdateListener(animation -> {
+
+            int animatedValue = (int) animation.getAnimatedValue();
+
+            if(startHeight<=endHeight) {
+                gradientView.setAlpha(1-((float)(animatedValue-startHeight)/(endHeight-startHeight)));
+            }
+            else {
+                gradientView.setAlpha(1-((float)(animatedValue-endHeight)/(startHeight-endHeight)));
+            }
+
+            ViewGroup.LayoutParams layoutParams = routineLayout.getLayoutParams();
+            layoutParams.height = animatedValue;
+            routineLayout.setLayoutParams(layoutParams);
         });
 
-        anim.start();
+        valueAnimator.start();
+    }
+
+    int getLayoutHeight() {
+
+        String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        int gridViewItemHeight=0, verticalSpacing=5, totalHeight=0;
+
+        Map<String, GridView> gridViewMap = new HashMap<>();
+        gridViewMap.put("Sunday", sundayGridview);
+        gridViewMap.put("Monday", mondayGridview);
+        gridViewMap.put("Tuesday", tuesdayGridview);
+        gridViewMap.put("Wednesday", wednesdayGridview);
+        gridViewMap.put("Thursday", thursdayGridview);
+        gridViewMap.put("Friday", fridayGridview);
+        gridViewMap.put("Saturday", saturdayGridview);
+
+        for(String day : gridViewMap.keySet()) {
+            if(routineList.containsKey(day)) {
+                float density = gridViewMap.get(day).getContext().getResources().getDisplayMetrics().density;
+                gridViewItemHeight = (int) (gridViewMap.get(day).getChildAt(0).getHeight()/density);
+                break;
+            }
+        }
+
+        for(int i=0; i<7; i++) {
+            if(routineList.containsKey(days[i])) {
+                int rowCount = (int)ceil((double)routineList.get(days[i]).size()/3.0);
+                totalHeight += 50+rowCount*gridViewItemHeight+(rowCount-1)*verticalSpacing;
+            }
+        }
+
+        return totalHeight+routineList.size();
+    }
+
+    int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return (int) (dp*density);
     }
 
     void getSchedule() {
@@ -233,27 +359,23 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
+                schedules.clear();
+
                 if(snapshot.exists()) {
-
-                    emptySchedule.setVisibility(View.GONE);
-                    scheduleLayout.setVisibility(View.VISIBLE);
-
                     for(DataSnapshot courseIdSnapshot : snapshot.getChildren()) {
                         String courseCode = courseIdSnapshot.getKey();
                         for(DataSnapshot batchSnapshot : courseIdSnapshot.getChildren()) {
                             String batch = batchSnapshot.getKey();
                             for(DataSnapshot sectionSnapshot : batchSnapshot.getChildren()) {
                                 String section = sectionSnapshot.getKey();
-                                String courseGroupId = selectedSession + "_" + batch + "_" + section + "_" + courseCode;
+                                String courseGroupId = selectedSession+"_"+batch+"_"+section+"_"+courseCode;
                                 fetchCourseAnnouncements(courseGroupId, courseCode);
                             }
                         }
                     }
                 }
-                else {
-                    emptySchedule.setVisibility(View.VISIBLE);
-                    scheduleLayout.setVisibility(View.GONE);
-                }
+
+                updateScheduleVisibility();
             }
 
             @Override
@@ -261,7 +383,7 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void fetchCourseAnnouncements(String courseGroupId, String courseCode) {
+    void fetchCourseAnnouncements(String courseGroupId, String courseCode) {
 
         DatabaseReference announcementReference = rootReference.child("courseAnnouncements").child(courseGroupId);
         announcementReference.keepSynced(true);
@@ -269,24 +391,10 @@ public class HomeFragment extends Fragment {
         announcementReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 if(snapshot.exists()) {
-                    emptySchedule.setVisibility(View.GONE);
-                    scheduleLayout.setVisibility(View.VISIBLE);
                     parseAnnouncements(snapshot, courseGroupId, courseCode);
-                    scheduleAdapter.notifyDataSetChanged();
                 }
-                else if(schedules.size()==0) {
-
-                    emptySchedule.setVisibility(View.VISIBLE);
-                    scheduleLayout.setVisibility(View.GONE);
-
-                    if(schedules.size()>0) {
-                        schedules.clear();
-                    }
-
-                    scheduleAdapter.notifyDataSetChanged();
-                }
+                updateScheduleVisibility();
             }
 
             @Override
@@ -294,11 +402,7 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private void parseAnnouncements(DataSnapshot snapshot, String courseGroupId, String courseCode) {
-
-        if(schedules.size()>0) {
-            schedules.clear();
-        }
+    void parseAnnouncements(DataSnapshot snapshot, String courseGroupId, String courseCode) {
 
         for(DataSnapshot announcement : snapshot.getChildren()) {
 
@@ -314,26 +418,40 @@ public class HomeFragment extends Fragment {
                     data2.put("courseGroupId", courseGroupId);
                     data2.put("courseCode", courseCode);
                     data2.put("date", getDate(schedule));
+                    data2.put("schedule", schedule);
 
                     if(data.containsKey("text")) {
                         data2.put("text", data.get("text"));
                     }
 
                     schedules.add(data2);
+
+                    schedules.sort((o1, o2) -> {
+                        return Long.compare((Long) o1.get("schedule"), (Long) o2.get("schedule"));
+                    });
+
                 }
             }
         }
+        scheduleAdapter.notifyDataSetChanged();
+    }
+
+    void updateScheduleVisibility() {
+        boolean hasSchedules = !schedules.isEmpty();
+        emptySchedule.setVisibility(hasSchedules ? View.GONE : View.VISIBLE);
+        scheduleLayout.setVisibility(hasSchedules ? View.VISIBLE : View.GONE);
     }
 
     void getFacultyRoutine() {
 
-        String acronym = String.valueOf(myDetails.get("acronym"));
-        DatabaseReference routineReference = rootReference.child("facultyRoutine").child(selectedSession).child(acronym);
+        DatabaseReference routineReference = rootReference.child("facultyRoutine").child(selectedSession).child(String.valueOf(myDetails.get("acronym")));
         routineReference.keepSynced(true);
 
         routineReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                routineReference.removeEventListener(this);
 
                 if(snapshot.exists()) {
 
@@ -371,19 +489,23 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                routineReference.removeEventListener(this);
+            }
         });
     }
 
     void getStudentRoutine() {
 
-        DatabaseReference routineReference = rootReference.child("routine").child(String.valueOf(departmentId))
+        DatabaseReference routineReference = rootReference.child("routine").child(String.valueOf(myDetails.get("departmentId")))
                 .child(selectedSession).child(String.valueOf(myDetails.get("batchId"))).child(String.valueOf(myDetails.get("sectionId")));
         routineReference.keepSynced(true);
 
         routineReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                routineReference.removeEventListener(this);
 
                 if(snapshot.exists()) {
 
@@ -420,200 +542,75 @@ public class HomeFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
-    void changeGridviewSize(ArrayList<Map<String, Object>> list, GridView gridview, String day) {
-
-        if(list!=null) {
-
-            RoutineGridAdapter adapter = new RoutineGridAdapter(getContext(), list);
-            gridview.setAdapter(adapter);
-
-            if(list.size()>0) {
-
-                gridview.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        int numRows = list.size()/3+min(1, list.size()%3);
-                        int firstItemHeight = gridview.getChildAt(0).getHeight();
-                        int space = gridview.getVerticalSpacing();
-                        int totalHeight = (numRows*firstItemHeight)+((numRows-1)*space);
-
-                        ViewGroup.LayoutParams params = gridview.getLayoutParams();
-                        params.height = totalHeight;
-                        gridview.setLayoutParams(params);
-                        gridview.requestLayout();
-
-                        RoutineGridAdapter adapter = new RoutineGridAdapter(getContext(), list);
-                        gridview.setAdapter(adapter);
-
-                        gridview.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                maxRoutineHeight = routineLayout.getHeight();
-                                collapseRoutine(0);
-                            }
-                        });
-                    }
-                });
-            }
-
-            if(day.equals("Sunday")) sundayTextView.setVisibility(View.VISIBLE);
-            else if(day.equals("Monday")) mondayTextView.setVisibility(View.VISIBLE);
-            else if(day.equals("Tuesday")) tuesdayTextView.setVisibility(View.VISIBLE);
-            else if(day.equals("Wednesday")) wednesdayTextView.setVisibility(View.VISIBLE);
-            else if(day.equals("Thursday")) thursdayTextView.setVisibility(View.VISIBLE);
-            else if(day.equals("Friday")) fridayTextView.setVisibility(View.VISIBLE);
-            else if(day.equals("Saturday")) saturdayTextView.setVisibility(View.VISIBLE);
-        }
-        else {
-            if(day.equals("Sunday")) sundayTextView.setVisibility(View.GONE);
-            else if(day.equals("Monday")) mondayTextView.setVisibility(View.GONE);
-            else if(day.equals("Tuesday")) tuesdayTextView.setVisibility(View.GONE);
-            else if(day.equals("Wednesday")) wednesdayTextView.setVisibility(View.GONE);
-            else if(day.equals("Thursday")) thursdayTextView.setVisibility(View.GONE);
-            else if(day.equals("Friday")) fridayTextView.setVisibility(View.GONE);
-            else if(day.equals("Saturday")) saturdayTextView.setVisibility(View.GONE);
-        }
-    }
-
-    void getDepartmentId(CompletionCallback callback) {
-
-        DatabaseReference depIdReference = rootReference.child("student").child(user.getUid());
-        depIdReference.keepSynced(true);
-
-        depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful() && task.getResult().getValue()!=null) {
-                    myDetails = (Map<String, Object>) task.getResult().getValue();
-                    myDetails.put("accountType", "student");
-                    callback.onCallback(myDetails.get("departmentId"));
-                }
-                else {
-
-                    DatabaseReference depIdReference = rootReference.child("facultyMember").child(user.getUid());
-                    depIdReference.keepSynced(true);
-
-                    depIdReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if(task.isSuccessful() && task.getResult().getValue()!=null) {
-                                myDetails = (Map<String, Object>) task.getResult().getValue();
-                                myDetails.put("accountType", "facultyMember");
-                                callback.onCallback(myDetails.get("departmentId"));
-                            }
-                            else {
-                                callback.onCallback(null);
-                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            callback.onCallback(null);
-                        }
-                    });
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                callback.onCallback(null);
-            }
-        });
-    }
-
-    void getSessionList(CompletionCallback callback) {
-
-        Query sessionReference = rootReference.child("sessions").child(String.valueOf(departmentId)).limitToLast(3);
-        sessionReference.keepSynced(true);
-
-        sessionReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                sessionReference.removeEventListener(this);
-
-                if(snapshot.exists()) {
-
-                    if(sessions.size()>0) {
-                        sessions.clear();
-                    }
-
-                    for(DataSnapshot s : snapshot.getChildren()) {
-                        sessions.add(String.valueOf(s.getValue()));
-                    }
-
-                    Collections.reverse(sessions);
-                    ArrayAdapter sessionsArrayAdapter = new ArrayAdapter(getContext(), R.layout.spinner_sessions, sessions);
-                    sessionsArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    sessionSpinner.setAdapter(sessionsArrayAdapter);
-                }
-
-                callback.onCallback(true);
-            }
-
-            @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                sessionReference.removeEventListener(this);
-                callback.onCallback(true);
+                routineReference.removeEventListener(this);
             }
         });
     }
 
-    void getSelectedSession(CompletionCallback callback) {
+    void changeGridviewSize(ArrayList<Map<String, Object>> list, GridView gridView, String day) {
 
-        DatabaseReference sessionReference = rootReference.child("selectedSessions").child(user.getUid());
-        sessionReference.keepSynced(true);
+        if(list!=null && !list.isEmpty()) {
 
-        sessionReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful() && task.getResult().exists()) {
-                    selectedSession = String.valueOf(task.getResult().getValue());
-                    sessionSpinner.setSelection(max(0, sessions.indexOf(selectedSession)));
-                    callback.onCallback(true);
-                }
-                else if(sessions.size()>0) {
-                    setSelectedSession(sessions.get(0), callback);
-                }
-                else {
-                    callback.onCallback(null);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                callback.onCallback(null);
-            }
-        });
-    }
+            list.sort((o1, o2) -> {
+                return Long.compare(parseTime(String.valueOf(o1.get("title1"))), parseTime(String.valueOf(o2.get("title1"))));
+            });
 
-    void setSelectedSession(String session, CompletionCallback callback) {
+            gridView.setAdapter(new RoutineGridAdapter(getContext(), list));
+        }
 
-        DatabaseReference sessionReference = rootReference.child("selectedSessions").child(user.getUid());
+        Map<String, Pair<TextView, GridView>> dayViews = new HashMap<>();
+        dayViews.put("Sunday", new Pair<>(sundayTextView, sundayGridview));
+        dayViews.put("Monday", new Pair<>(mondayTextView, mondayGridview));
+        dayViews.put("Tuesday", new Pair<>(tuesdayTextView, tuesdayGridview));
+        dayViews.put("Wednesday", new Pair<>(wednesdayTextView, wednesdayGridview));
+        dayViews.put("Thursday", new Pair<>(thursdayTextView, thursdayGridview));
+        dayViews.put("Friday", new Pair<>(fridayTextView, fridayGridview));
+        dayViews.put("Saturday", new Pair<>(saturdayTextView, saturdayGridview));
 
-        sessionReference.setValue(session).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                selectedSession = session;
-                callback.onCallback(true);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                selectedSession = session;
-                callback.onCallback(true);
-            }
-        });
+        Pair<TextView, GridView> views = dayViews.getOrDefault(day, null);
+
+        if(views!=null) {
+            int visibility = (list!=null && !list.isEmpty()) ? View.VISIBLE : View.GONE;
+            views.first.setVisibility(visibility);
+            views.second.setVisibility(visibility);
+        }
+
+        if(expandedRoutine && "Saturday".equals(day)) {
+            routineLayout.post(() -> {
+                animateHeight(dpToPx(100), Math.max(dpToPx(100), dpToPx(getLayoutHeight())));
+            });
+        }
     }
 
     String getDate(long time) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy").withZone(ZoneId.systemDefault());
         String formattedDate = formatter.format(Instant.ofEpochMilli(time));
         return formattedDate;
+    }
+
+    long parseTime(String timeRange) {
+
+        String startTime = timeRange.split("-")[0].trim().replaceAll("(?i)pm|am", "").trim();
+
+        try {
+
+            if(Pattern.compile("^\\d{1,2}:\\d{2}pm-\\d{1,2}:\\d{2}pm$").matcher(timeRange).find()) {
+                startTime = startTime+" PM";
+            }
+            else if(Pattern.compile("^(0?8:[0-5][0-9]|0?9:[0-5][0-9]|10:[0-5][0-9]|11:[0-5][0-9])$").matcher(startTime).find()) {
+                startTime = startTime+" AM";
+            }
+            else {
+                startTime = startTime+" PM";
+            }
+
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a"); // 12-hour format with AM/PM
+            Date date = sdf.parse(startTime);
+            return date.getTime()%(24*60*60*1000);
+        }
+        catch(Exception e) {
+            return 0;
+        }
     }
 }

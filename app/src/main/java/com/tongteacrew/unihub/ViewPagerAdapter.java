@@ -5,35 +5,28 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import java.util.ArrayList;
+
 public class ViewPagerAdapter extends FragmentStateAdapter {
+
+    ArrayList<Fragment> fragments = new ArrayList<>();
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
+        fragments.add(new HomeFragment());
+        fragments.add(new ChatsFragment());
+        fragments.add(new CoursesFragment());
+        fragments.add(new DepartmentFragment());
     }
 
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-
-        if(position==0) {
-            return new HomeFragment();
-        }
-        else if(position==1) {
-            return new ChatsFragment();
-        }
-        else if(position==2) {
-            return new CoursesFragment();
-        }
-        else if(position==3) {
-            return new DepartmentFragment();
-        }
-        else {
-            return new HomeFragment();
-        }
+        return fragments.get(position);
     }
 
     @Override
     public int getItemCount() {
-        return 4;
+        return fragments.size();
     }
 }

@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         // Ask permission to send notifications
-        //askNotificationPermission();
         createNotificationChannel();
 
         // Initializing Cloudinary SDK

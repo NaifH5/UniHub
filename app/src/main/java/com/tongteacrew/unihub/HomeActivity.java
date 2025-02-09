@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -74,7 +73,7 @@ public class HomeActivity extends AppCompatActivity {
         btnDev2 = findViewById(R.id.btn_dev_2);
         btnDev3 = findViewById(R.id.btn_dev_3);
 
-        ViewPagerAdapter adapter = new ViewPagerAdapter(this);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(HomeActivity.this);
         viewPager.setAdapter(adapter);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -106,7 +105,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        // ViewPager page change listener
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
@@ -211,6 +209,8 @@ public class HomeActivity extends AppCompatActivity {
 
             final int index = i;
             DatabaseReference imageReference = rootReference.child("student").child(ids[index]).child("profilePicture");
+            imageReference.keepSynced(true);
+
             imageReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {

@@ -33,13 +33,12 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
@@ -49,13 +48,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     FirebaseUser user = mAuth.getCurrentUser();
     Context context;
     ArrayList<Map<String, Object>> departmentPosts;
-    CompletionCallback refresh;
     String myAccountType;
 
-    public PostAdapter(Context context, String myAccountType, ArrayList<Map<String, Object>> departmentPosts, CompletionCallback refresh) {
+    public PostAdapter(Context context, ArrayList<Map<String, Object>> departmentPosts, String myAccountType) {
         this.context = context;
         this.departmentPosts = departmentPosts;
-        this.refresh = refresh;
         this.myAccountType = myAccountType;
     }
 
@@ -71,104 +68,90 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         int index = departmentPosts.size()-position-1;
         holder.progressIndicator.setVisibility(View.VISIBLE);
 
-        if(departmentPosts.get(index).containsKey("profilePicture")) {
-            Glide.with(context)
-                    .load(departmentPosts.get(index).get("profilePicture"))
-                    .error(R.drawable.icon_photo)
-                    .placeholder(R.drawable.icon_photo)
-                    .into(new CustomTarget<Drawable>(){
+        Glide.with(context)
+                .load(String.valueOf(departmentPosts.get(index).get("profilePicture")))
+                .error(R.drawable.icon_default_profile)
+                .placeholder(R.drawable.icon_default_profile)
+                .into(new CustomTarget<Drawable>(){
 
-                        @Override
-                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                            holder.progressIndicator.setVisibility(View.GONE);
-                            Glide.with(context).load(resource).circleCrop().into(holder.posterProfilePicture);
-                        }
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        holder.progressIndicator.setVisibility(View.GONE);
+                        Glide.with(context).load(resource).circleCrop().into(holder.posterProfilePicture);
+                    }
 
-                        @Override
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-                            holder.progressIndicator.setVisibility(View.GONE);
-                        }
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        holder.progressIndicator.setVisibility(View.GONE);
+                        holder.posterProfilePicture.setImageDrawable(errorDrawable);
+                    }
 
-                        @Override
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-                            holder.progressIndicator.setVisibility(View.GONE);
-                            holder.posterProfilePicture.setImageDrawable(placeholder);
-                        }
-                    });
-        }
-        else {
-            holder.progressIndicator.setVisibility(View.GONE);
-        }
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                        holder.progressIndicator.setVisibility(View.GONE);
+                        holder.posterProfilePicture.setImageDrawable(placeholder);
+                    }
+                });
 
         holder.posterName.setText(String.valueOf(departmentPosts.get(index).get("fullName")));
         holder.postTime.setText(String.valueOf(departmentPosts.get(index).get("time")));
         holder.post.setText(String.valueOf(departmentPosts.get(index).get("text")));
-
         holder.commentCount.setText(String.valueOf(departmentPosts.get(index).get("commentCount")));
+        holder.textAccountType.setText(String.valueOf(departmentPosts.get(index).get("accountType")).equals("student")?"Student":"Faculty Member");
 
-        if((Boolean) departmentPosts.get(index).get("approval")) {
+        boolean iAmTeacher = !myAccountType.equals("student");
+        boolean posterIsMe = String.valueOf(departmentPosts.get(index).get("posterId")).equals(user.getUid());
+        boolean approved = (boolean) departmentPosts.get(index).get("approval");
+
+        if(!iAmTeacher && !posterIsMe && approved) {
+            holder.notApproved.setVisibility(View.GONE);
+            holder.btnOptions.setVisibility(View.GONE);
+        }
+        else if(!iAmTeacher && posterIsMe && !approved) {
+            holder.pendingPostText.setText("Your post has not been approved yet.");
+            holder.linearLayoutAccept.setVisibility(View.GONE);
+            holder.linearLayoutReject.setVisibility(View.GONE);
+            holder.linearLayoutComment.setVisibility(View.GONE);
+        }
+        else if(!iAmTeacher && posterIsMe && approved) {
             holder.notApproved.setVisibility(View.GONE);
         }
-        else if(String.valueOf(departmentPosts.get(index).get("posterId")).equals(user.getUid())) {
+        else if(iAmTeacher && !posterIsMe && !approved) {
+            holder.btnOptions.setVisibility(View.GONE);
             holder.linearLayoutComment.setVisibility(View.GONE);
         }
-        else {
-            holder.linearLayoutComment.setVisibility(View.GONE);
-            holder.btnOptions.setVisibility(View.GONE);
-        }
-
-        if(String.valueOf(departmentPosts.get(index).get("accountType")).equals("student")) {
-
-            holder.textAccountType.setText("Student");
-
-            if(String.valueOf(departmentPosts.get(index).get("posterId")).equals(user.getUid())) {
-                holder.pendingPostText.setText("Your post has not been approved yet.");
-                holder.linearLayoutAccept.setVisibility(View.GONE);
-                holder.linearLayoutReject.setVisibility(View.GONE);
-            }
+        else if(iAmTeacher && !posterIsMe && approved) {
+            holder.notApproved.setVisibility(View.GONE);
         }
         else {
-            holder.textAccountType.setText("Faculty Member");
+            holder.notApproved.setVisibility(View.GONE);
         }
 
-        if(myAccountType.equals("student") && !String.valueOf(departmentPosts.get(index).get("posterId")).equals(user.getUid())) {
-            holder.btnOptions.setVisibility(View.GONE);
-        }
+        ArrayList<String> medias = (ArrayList<String>) departmentPosts.get(index).get("medias");
+        MediaGridAdapter mediaGridAdapter = new MediaGridAdapter(context, medias);
 
-        getMedias(String.valueOf(departmentPosts.get(index).get("postId")), new CompletionCallback() {
-            @Override
-            public void onCallback(Object data) {
+        // To dynamically set the width of the medias
+        if(medias!=null) {
 
-                if(data!=null) {
+            holder.mediaGridview.setVisibility(View.VISIBLE);
 
-                    ArrayList<String> medias = (ArrayList<String>) data;
-                    MediaGridAdapter mediaGridAdapter = new MediaGridAdapter(context, medias);
+            holder.mediaGridview.post(new Runnable() {
+                @Override
+                public void run() {
+
+                    int rowNum = medias.size()/4 + min(1, medias.size()%4);
+                    int arrayListSize = medias.size();
+                    int height = (holder.mediaGridview.getWidth()-5*(min(arrayListSize, 4)-1))/min(arrayListSize, 4);
+
+                    holder.mediaGridview.getLayoutParams().height = height*rowNum+5*(rowNum-1);
+                    holder.mediaGridview.setNumColumns(min(arrayListSize, 4));
                     holder.mediaGridview.setAdapter(mediaGridAdapter);
-
-                    // To dynamically set the width of the medias
-                    if(medias.size()>0) {
-
-                        holder.mediaGridview.setVisibility(View.VISIBLE);
-
-                        holder.mediaGridview.post(new Runnable() {
-                            @Override
-                            public void run() {
-
-                                int rowNum = medias.size()/4 + min(1, medias.size()%4);
-                                int arrayListSize = medias.size();
-                                int height = (holder.mediaGridview.getWidth()-5*(min(arrayListSize, 4)-1))/min(arrayListSize, 4);
-
-                                holder.mediaGridview.getLayoutParams().height = height*rowNum+5*(rowNum-1);
-                                holder.mediaGridview.setNumColumns(min(arrayListSize, 4));
-                            }
-                        });
-                    }
-                    else {
-                        holder.mediaGridview.setVisibility(View.GONE);
-                    }
                 }
-            }
-        });
+            });
+        }
+        else {
+            holder.mediaGridview.setVisibility(View.GONE);
+        }
 
         holder.btnComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -274,60 +257,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     void deletePost(String postId, String departmentId) {
 
-        DatabaseReference removeReference = rootReference.child("departmentPosts").child(departmentId).child(postId);
-        removeReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                DatabaseReference removeReference = rootReference.child("posts").child(postId);
-                removeReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        DatabaseReference removeReference = rootReference.child("medias").child(postId);
-                        removeReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                DatabaseReference removeReference = rootReference.child("comments").child(postId);
-                                removeReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        Toast.makeText(context, "Post deleted!", Toast.LENGTH_SHORT).show();
-                                        refresh.onCallback(true);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("departmentPosts/" + departmentId + "/" + postId, null);
+        updates.put("posts/" + postId, null);
+        updates.put("medias/" + postId, null);
+        updates.put("comments/" + postId, null);
+
+        rootReference.updateChildren(updates).addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                Toast.makeText(context, "Post deleted!", Toast.LENGTH_SHORT).show();
             }
-        });
-    }
-
-    void getMedias(String postId, CompletionCallback callback) {
-
-        DatabaseReference mediaReference = rootReference.child("medias").child(postId);
-        mediaReference.keepSynced(true);
-
-        mediaReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                mediaReference.removeEventListener(this);
-                ArrayList<String> medias = new ArrayList<>();
-
-                for(DataSnapshot s : snapshot.getChildren()) {
-
-                    medias.add(String.valueOf(s.getValue()));
-
-                    if(medias.size()==snapshot.getChildrenCount()) {
-                        callback.onCallback(medias);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                mediaReference.removeEventListener(this);
-                callback.onCallback(null);
+            else {
+                Toast.makeText(context, "Failed to delete post.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -349,7 +290,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         Toast.makeText(context, "Post approved!", Toast.LENGTH_SHORT).show();
-                                        refresh.onCallback(true);
                                     }
                                 });
                             }
@@ -396,7 +336,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
                 postReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        refresh.onCallback(true);
                         Toast.makeText(context, "Post approval rejected!", Toast.LENGTH_SHORT).show();
                     }
                 });
