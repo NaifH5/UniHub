@@ -60,7 +60,7 @@ public class UnallocatedRoomsActivity extends AppCompatActivity {
         getSelectedSession();
     }
 
-    void getSelectedSession() {
+    public void getSelectedSession() {
 
         DatabaseReference sessionRef = rootReference.child("selectedSessions").child(user.getUid());
         sessionRef.keepSynced(true);
@@ -78,7 +78,7 @@ public class UnallocatedRoomsActivity extends AppCompatActivity {
         });
     }
 
-    void getAllRooms(String selectedSession) {
+    public void getAllRooms(String selectedSession) {
 
         DatabaseReference allRoomsReference = rootReference.child("allRooms").child(selectedSession);
         allRoomsReference.keepSynced(true);
@@ -100,7 +100,7 @@ public class UnallocatedRoomsActivity extends AppCompatActivity {
         });
     }
 
-    void getAllocatedRooms(String selectedSession, ArrayList<String> allRooms) {
+    public void getAllocatedRooms(String selectedSession, ArrayList<String> allRooms) {
 
         DatabaseReference allocateedRoomsReference = rootReference.child("allocatedRooms").child(selectedSession);
         allocateedRoomsReference.keepSynced(true);
@@ -155,7 +155,7 @@ public class UnallocatedRoomsActivity extends AppCompatActivity {
         });
     }
 
-    void sortAndSetAdapter(GridView gridView, ArrayList<Map<String, Object>> list) {
+    public void sortAndSetAdapter(GridView gridView, ArrayList<Map<String, Object>> list) {
 
         list.sort((o1, o2) -> {
             return Long.compare(parseTime(o1.keySet().iterator().next()), parseTime(o2.keySet().iterator().next()));
@@ -164,7 +164,7 @@ public class UnallocatedRoomsActivity extends AppCompatActivity {
         gridView.setAdapter(new UnallocatedRoomsGridAdapter(UnallocatedRoomsActivity.this, list, gridView));
     }
 
-    long parseTime(String timeRange) {
+    public long parseTime(String timeRange) {
 
         String startTime = timeRange.split("-")[0].trim().replaceAll("(?i)pm|am", "").trim();
 

@@ -54,8 +54,8 @@ public class ProfileActivity extends AppCompatActivity {
     ArrayList<String[]> clubs = new ArrayList<>();
     String accountType="student", profileId;
     TextView fullName, department, batch, section, id, acronym, note, designation;
-    Map<String, Object> data, designationMap;
-    Map<String, Map<String, Object>> clubDetails = new HashMap<>();
+    private Map<String, Object> data, designationMap;
+    private Map<String, Map<String, Object>> clubDetails = new HashMap<>();
 
     String[] departments = {"Architecture", "Bangla", "Business Administration", "Civil Engineering",
             "Computer Science & Engineering", "Electrical and Electronics Engineering", "English",
@@ -127,7 +127,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    void getAccountType(CompletionCallback callback) {
+    public void getAccountType(CompletionCallback callback) {
 
         DatabaseReference accountTypeReference = rootReference.child("student").child(profileId);
         accountTypeReference.keepSynced(true);
@@ -156,7 +156,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    void getProfileDetails() {
+    public void getProfileDetails() {
 
         String account;
 
@@ -253,7 +253,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    void getDesignations() {
+    public void getDesignations() {
 
         DatabaseReference designationsReference = rootReference.child("designations").child(profileId);
         designationsReference.keepSynced(true);
@@ -273,7 +273,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-    void setDesignations() {
+    public void setDesignations() {
 
         StringBuilder selectedOptions = new StringBuilder();
 
@@ -288,7 +288,7 @@ public class ProfileActivity extends AppCompatActivity {
         designation.setText(selectedOptions);
     }
 
-    void getClubs() {
+    public void getClubs() {
 
         rootReference.child("clubs").child(profileId).addValueEventListener(new ValueEventListener() {
             @Override

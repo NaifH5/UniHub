@@ -23,7 +23,7 @@ public class RegisterAuthInfoActivity extends AppCompatActivity {
     ImageButton btnBack;
     ImageView btnPasswordVisibilityInRegister, bgImage;
     EditText fullNameInRegister, phoneNumberInRegister, emailInRegister, passwordInRegister;
-    String accountType;
+    private String accountType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,25 +133,25 @@ public class RegisterAuthInfoActivity extends AppCompatActivity {
     }
 
     // Regex for Name: Non-empty string with no special characters or digitsa
-    boolean validateName(String name) {
+    private boolean validateName(String name) {
         String regex = "^[A-Za-z\\s]{2,50}$";  // Only letters and spaces
         return !name.isEmpty() && name.matches(regex);
     }
 
     // Regex for Phone Number: Simple phone number pattern (US-style)
-    boolean validateNumber(String number) {
+    private boolean validateNumber(String number) {
         String regex = "^(?:\\+8801|01)[3-9]\\d{8}$"; // Matches numbers with optional + sign, and 10-13 digits
         return !number.isEmpty() && number.matches(regex);
     }
 
     // Regex for Email: Using Patterns.EMAIL_ADDRESS for basic email validation
-    boolean validateEmail(String email) {
+    private boolean validateEmail(String email) {
         String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"; // Custom regex for email validation
         return !email.isEmpty() && email.matches(regex);
     }
 
     // Regex for Password: At least 6 characters, including one uppercase, one lowercase, one digit, and one special character
-    boolean validatePassword(String password) {
+    private boolean validatePassword(String password) {
         String regex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"; // Password strength
         return !password.isEmpty() && password.matches(regex);
     }

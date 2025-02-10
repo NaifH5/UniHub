@@ -71,9 +71,9 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView chatRecyclerView;
     ChatAdapter chatAdapter;
     ArrayList<Map<String, Object>> messages = new ArrayList<>();
-    Map<String, Object> userData, myData;
-    long serverTime;
-    String chatId;
+    private Map<String, Object> userData, myData;
+    private long serverTime;
+    private String chatId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,7 +162,7 @@ public class ChatActivity extends AppCompatActivity {
         makeOnline();
     }
 
-    void getMyData() {
+    public void getMyData() {
 
         DatabaseReference myReference = rootReference.child("student").child(user.getUid());
         myReference.keepSynced(true);
@@ -204,7 +204,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void getMessages() {
+    public void getMessages() {
 
         DatabaseReference chatsReference = rootReference.child("chats").child(String.valueOf(userData.get("messageId")));
         chatsReference.keepSynced(true);
@@ -250,7 +250,7 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    void makeOnline() {
+    public void makeOnline() {
 
         DatabaseReference onlineStatusReference = rootReference.child("onlineStatus").child(user.getUid());
         Map<String, Boolean> online = new HashMap<>();
@@ -262,7 +262,7 @@ public class ChatActivity extends AppCompatActivity {
         onlineStatusReference.onDisconnect().setValue(offline);
     }
 
-    void setOnlineStatus() {
+    public void setOnlineStatus() {
 
         DatabaseReference onlineReference = rootReference.child("onlineStatus").child(String.valueOf(userData.get("id")));
         onlineReference.keepSynced(true);
@@ -289,7 +289,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void setProfilePicture(String profilePicture) {
+    public void setProfilePicture(String profilePicture) {
 
         progressIndicator.setVisibility(View.VISIBLE);
 
@@ -318,7 +318,7 @@ public class ChatActivity extends AppCompatActivity {
                 });
     }
 
-    void checkIfInteracted(String msg) {
+    public void checkIfInteracted(String msg) {
 
         Query interactionReference = rootReference.child("interactions").child(user.getUid()).orderByKey().equalTo(userData.get("id").toString());
         interactionReference.keepSynced(true);
@@ -344,7 +344,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void createInteraction(String msg) {
+    public void createInteraction(String msg) {
 
         String receiverId = String.valueOf(userData.get("id"));
         chatId = rootReference.child("chats").push().getKey();
@@ -375,7 +375,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void setTimeStamp(String msg) {
+    public void setTimeStamp(String msg) {
 
         DatabaseReference timeReference = rootReference.child("timeStamps").child(user.getUid());
         timeReference.keepSynced(true);
@@ -388,7 +388,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void getTimeStamp(String msg) {
+    public void getTimeStamp(String msg) {
 
         DatabaseReference timeReference = rootReference.child("timeStamps").child(user.getUid());
         timeReference.keepSynced(true);
@@ -405,7 +405,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void sendMessage(String msg) {
+    public void sendMessage(String msg) {
 
         Map<String, Object> msgDetails = new HashMap<>();
         msgDetails.put("sender", user.getUid());
@@ -422,7 +422,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    void sendNotification(String msg) {
+    public void sendNotification(String msg) {
 
         JSONObject messageObject = new JSONObject();
 
@@ -484,7 +484,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    String getAccessToken() {
+    public String getAccessToken() {
 
         try {
 
@@ -516,14 +516,14 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    String getDate(long time) {
+    public String getDate(long time) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy").withZone(ZoneId.systemDefault());
         String formattedDate = formatter.format(Instant.ofEpochMilli(time));
         return formattedDate;
     }
 
-    String getTime(long time) {
+    public String getTime(long time) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a").withZone(ZoneId.systemDefault());
         String formattedTime = formatter.format(Instant.ofEpochMilli(time));

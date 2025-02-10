@@ -33,9 +33,9 @@ public class AllCoursesActivity extends AppCompatActivity {
     AllCoursesGroupAdapter allCourseGroupAdapter;
     ImageButton btnBack;
     ArrayList<Map<String, String>> courseGroups = new ArrayList<>();
-    long departmentId=1;
-    String selectedSession=null;
-    String myAccountType="student";
+    private long departmentId=1;
+    private String selectedSession=null;
+    private String myAccountType="student";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,7 @@ public class AllCoursesActivity extends AppCompatActivity {
         });
     }
 
-    void getMyAccountType(CompletionCallback callback) {
+    public void getMyAccountType(CompletionCallback callback) {
 
         DatabaseReference accountTypeReference = rootReference.child("student").child(user.getUid());
         accountTypeReference.keepSynced(true);
@@ -101,7 +101,7 @@ public class AllCoursesActivity extends AppCompatActivity {
         });
     }
 
-    void getAllCourses() {
+    public void getAllCourses() {
 
         DatabaseReference coursesReference = rootReference.child("courses").child(String.valueOf(departmentId)).child(selectedSession);
         coursesReference.keepSynced(true);
@@ -152,7 +152,7 @@ public class AllCoursesActivity extends AppCompatActivity {
         });
     }
 
-    void getDepartmentId(CompletionCallback callback) {
+    public void getDepartmentId(CompletionCallback callback) {
 
         DatabaseReference depIdReference = rootReference.child("student").child(user.getUid()).child("departmentId");
         depIdReference.keepSynced(true);
@@ -194,7 +194,7 @@ public class AllCoursesActivity extends AppCompatActivity {
         });
     }
 
-    void getSelectedSession(CompletionCallback callback) {
+    public void getSelectedSession(CompletionCallback callback) {
 
         DatabaseReference sessionReference = rootReference.child("selectedSessions").child(user.getUid());
         sessionReference.keepSynced(true);
@@ -218,7 +218,7 @@ public class AllCoursesActivity extends AppCompatActivity {
         });
     }
 
-    void isGroupMember(String courseCode, String batch, String section, CompletionCallback callback) {
+    public void isGroupMember(String courseCode, String batch, String section, CompletionCallback callback) {
 
         DatabaseReference memberReference = rootReference.child("myCourses").child(user.getUid())
                 .child(selectedSession).child(courseCode).child(batch).child(section);

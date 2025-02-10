@@ -36,7 +36,8 @@ public class GroupInfoActivity extends AppCompatActivity {
     ArrayList<Map<String, Object>> courseTeacher = new ArrayList<>();
     ArrayList<Map<String, Object>> classRepresentative = new ArrayList<>();
     ArrayList<Map<String, Object>> students = new ArrayList<>();
-    String courseGroupId, myAccountType;
+    private String courseGroupId;
+    String myAccountType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +100,7 @@ public class GroupInfoActivity extends AppCompatActivity {
         getCR();
     }
 
-    void getCourseTeacher() {
+    public void getCourseTeacher() {
 
         DatabaseReference facultyReference = rootReference.child("courseGroupMembers").child(courseGroupId).child("facultyMember");
         facultyReference.keepSynced(true);
@@ -137,7 +138,7 @@ public class GroupInfoActivity extends AppCompatActivity {
         });
     }
 
-    void getStudents() {
+    public void getStudents() {
 
         DatabaseReference studentReference = rootReference.child("courseGroupMembers").child(courseGroupId).child("student");
         studentReference.keepSynced(true);
@@ -175,7 +176,7 @@ public class GroupInfoActivity extends AppCompatActivity {
         });
     }
 
-    void getCR() {
+    public void getCR() {
 
         DatabaseReference crReference = rootReference.child("courseGroupMembers").child(courseGroupId).child("classRepresentative");
         crReference.keepSynced(true);

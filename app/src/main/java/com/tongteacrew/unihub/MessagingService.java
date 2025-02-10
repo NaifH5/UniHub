@@ -120,7 +120,7 @@ public class MessagingService extends FirebaseMessagingService {
         }
     }
 
-    void updateToken(String accountType, String token) {
+    public void updateToken(String accountType, String token) {
 
         DatabaseReference accountReference = rootReference.child(accountType).child(user.getUid()).child("deviceToken");
 

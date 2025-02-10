@@ -57,7 +57,7 @@ public class HomeFragment extends Fragment {
     LinearLayout scheduleLayout;
     RelativeLayout routineLayout;
     Spinner sessionSpinner;
-    Button btnCourses, btnUnallocatedRooms;
+    Button btnCourses, btnUnallocatedRooms, btnClubs;
     ImageButton btnExpandRoutine;
     TextView emptySchedule, sundayTextView, mondayTextView, tuesdayTextView, wednesdayTextView, thursdayTextView, fridayTextView, saturdayTextView;
     View gradientView;
@@ -81,6 +81,7 @@ public class HomeFragment extends Fragment {
         scheduleRecyclerView = view.findViewById(R.id.schedule_recycler_view);
         btnCourses = view.findViewById(R.id.btn_courses);
         btnUnallocatedRooms = view.findViewById(R.id.btn_unallocated_rooms);
+        btnClubs = view.findViewById(R.id.btn_clubs);
         sessionSpinner = view.findViewById(R.id.spinner_session);
         emptySchedule = view.findViewById(R.id.empty_schedule);
         scheduleLayout = view.findViewById(R.id.linearLayout10);
@@ -115,6 +116,22 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        btnUnallocatedRooms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), UnallocatedRoomsActivity.class);
+                getContext().startActivity(intent);
+            }
+        });
+
+        btnClubs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), ClubsActivity.class);
+                getContext().startActivity(intent);
+            }
+        });
+
         btnExpandRoutine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,14 +148,6 @@ public class HomeFragment extends Fragment {
                 }
 
                 expandedRoutine = !expandedRoutine;
-            }
-        });
-
-        btnUnallocatedRooms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(), UnallocatedRoomsActivity.class);
-                getContext().startActivity(intent);
             }
         });
 

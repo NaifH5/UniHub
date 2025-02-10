@@ -41,8 +41,8 @@ public class RegisterStudentDepInfoActivity extends AppCompatActivity {
     EditText idInRegister;
     ProgressBar progressBar;
     Spinner depSpinner, batchSpinner, sectionSpinner;
-    String accountType, department, batch, section, id, name, number, email, password, sectionId="A";
-    int departmentID=1, batchId=56;
+    private String accountType, department, batch, section, id, name, number, email, password, sectionId="A";
+    private int departmentID=1, batchId=56;
 
     String[] departments = {"Architecture", "Bangla", "Business Administration", "Civil Engineering",
             "Computer Science & Engineering", "Electrical & Electronics Engineering", "English",
@@ -158,7 +158,7 @@ public class RegisterStudentDepInfoActivity extends AppCompatActivity {
         return !id.isEmpty() && id.matches(regex);
     }
 
-    void registerEmailAndPassword() {
+    public void registerEmailAndPassword() {
 
         progressBar.setVisibility(View.VISIBLE);
         btnRegisterInRegister.setVisibility(View.GONE);
@@ -178,7 +178,7 @@ public class RegisterStudentDepInfoActivity extends AppCompatActivity {
         });
     }
 
-    void registerPersonalDetails(String uId) {
+    public void registerPersonalDetails(String uId) {
 
         Map<String, Object> student = new HashMap<>();
         student.put("fullName", name);

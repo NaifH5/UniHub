@@ -36,7 +36,7 @@ public class QueriesActivity extends AppCompatActivity {
     EditText text;
     TextView emptyMessage;
     ArrayList<Map<String, Object>> queries = new ArrayList<>();
-    String courseGroupId, announcementId;
+    private String courseGroupId, announcementId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,6 @@ public class QueriesActivity extends AppCompatActivity {
 
         queriesRecyclerView = findViewById(R.id.queries_recycler_view);
         queriesRecyclerView.setLayoutManager(new LinearLayoutManager(QueriesActivity.this));
-        queriesRecyclerView.setHasFixedSize(true);
         queriesAdapter = new CommentsAdapter(QueriesActivity.this, queries);
 
         queriesRecyclerView.setAdapter(queriesAdapter);
