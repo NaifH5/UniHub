@@ -57,8 +57,8 @@ public class MessagingService extends FirebaseMessagingService {
 
         if(message.getData().size()>0) {
 
-            String title = "New message!";
-            String body = message.getData().get("title")+": "+message.getData().get("body");
+            String title = message.getData().get("title");
+            String body = message.getData().get("body");
 
             Intent intent = new Intent(MessagingService.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

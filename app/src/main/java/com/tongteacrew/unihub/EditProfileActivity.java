@@ -86,8 +86,15 @@ public class EditProfileActivity extends AppCompatActivity {
     String[] designations = {"Adjunct Lecturer", "Assistant Proctor", "Assistant Professor",
             "Associate Professor", "Head", "Lecturer"};
     boolean[] selectedDesignations = new boolean[designations.length];
-    String[] clubs = {"Computer Club", "Orpheus", "Banned Community"};
-    String[] clubDesignations = {"Member", "Executive Member"};
+    String[] clubs = {"Bangladesh National Cadet Corps", "Bangladesh Rover Scouts", "Business Club",
+            "CE Family of Leading University", "Computer Club", "Cultural Club", "Debating Club",
+            "Electronics Club", "IEEE Computer Society LU SB Chapter", "IEEE Student Branch",
+            "Islamic Cultural Forum", "Model United Nations Association", "Moot Court Society",
+            "Orpheus", "Photographic Society", "Research Society", "Rotaract Club",
+            "Social Services Club", "Sports Club", "The Banned Community", "Tourist Club"};
+    String[] clubDesignations = {"Advisor", "Cadet", "Co-advisor", "Corporal", "Executive Member",
+            "General Member", "General Secretary", "Lance corporal", "Platoon Commander-PUO",
+            "Platoon Incharge-Sergeant", "President", "Scout", "Treasurer", "Other"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
